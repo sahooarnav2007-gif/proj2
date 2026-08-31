@@ -3,12 +3,8 @@
 import React from 'react';
 import { Role, Language } from '@/types';
 import { translations } from '@/lib/utils';
+import { RoleTab, ROLE_TAB_CONFIG } from './RoleTab';
 import { 
-  Building2, 
-  GraduationCap, 
-  Briefcase, 
-  Smartphone, 
-  Bot, 
   ShieldCheck, 
   Languages, 
   FileSpreadsheet,
@@ -81,66 +77,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Role Switcher Tabs */}
           <div className="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-            <button
-              onClick={() => setCurrentRole('state_admin')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                currentRole === 'state_admin'
-                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Building2 className="w-4 h-4" />
-              <span>{t.role_state}</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentRole('training_provider')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                currentRole === 'training_provider'
-                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <GraduationCap className="w-4 h-4" />
-              <span>{t.role_tp}</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentRole('employer')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                currentRole === 'employer'
-                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Briefcase className="w-4 h-4" />
-              <span>{t.role_employer}</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentRole('trainee')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                currentRole === 'trainee'
-                  ? 'bg-white dark:bg-slate-700 text-orange-600 dark:text-orange-400 shadow-sm'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-              }`}
-            >
-              <Smartphone className="w-4 h-4" />
-              <span>{t.role_trainee}</span>
-            </button>
-
-            <button
-              onClick={() => setCurrentRole('simulators')}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                currentRole === 'simulators'
-                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm font-bold'
-                  : 'text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
-              }`}
-            >
-              <Bot className="w-4 h-4" />
-              <span>{t.role_simulators}</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            </button>
+            {ROLE_TAB_CONFIG.map((tab) => (
+              <RoleTab
+                key={tab.role}
+                role={tab.role}
+                label={t[tab.labelKey as keyof typeof t]}
+                icon={tab.icon}
+                isActive={currentRole === tab.role}
+                onClick={() => setCurrentRole(tab.role)}
+                variant={tab.variant}
+              />
+            ))}
           </div>
 
           {/* Language Selector & Audit Export */}
@@ -194,51 +141,24 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Role Switcher Scroll */}
         <div className="lg:hidden flex items-center gap-2 overflow-x-auto py-2 border-t border-slate-100 dark:border-slate-800 no-scrollbar">
-          <button
-            onClick={() => setCurrentRole('state_admin')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs whitespace-nowrap font-medium ${
-              currentRole === 'state_admin' ? 'bg-orange-600 text-white font-bold' : 'bg-slate-100 text-slate-700'
-            }`}
-          >
-            <Building2 className="w-3.5 h-3.5" />
-            <span>{t.role_state}</span>
-          </button>
-          <button
-            onClick={() => setCurrentRole('training_provider')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs whitespace-nowrap font-medium ${
-              currentRole === 'training_provider' ? 'bg-orange-600 text-white font-bold' : 'bg-slate-100 text-slate-700'
-            }`}
-          >
-            <GraduationCap className="w-3.5 h-3.5" />
-            <span>{t.role_tp}</span>
-          </button>
-          <button
-            onClick={() => setCurrentRole('employer')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs whitespace-nowrap font-medium ${
-              currentRole === 'employer' ? 'bg-orange-600 text-white font-bold' : 'bg-slate-100 text-slate-700'
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5" />
-            <span>{t.role_employer}</span>
-          </button>
-          <button
-            onClick={() => setCurrentRole('trainee')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs whitespace-nowrap font-medium ${
-              currentRole === 'trainee' ? 'bg-orange-600 text-white font-bold' : 'bg-slate-100 text-slate-700'
-            }`}
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>{t.role_trainee}</span>
-          </button>
-          <button
-            onClick={() => setCurrentRole('simulators')}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs whitespace-nowrap font-medium ${
-              currentRole === 'simulators' ? 'bg-emerald-600 text-white font-bold' : 'bg-emerald-100 text-emerald-800'
-            }`}
-          >
-            <Bot className="w-3.5 h-3.5" />
-            <span>{t.role_simulators}</span>
-          </button>
+          {ROLE_TAB_CONFIG.map((tab) => (
+            <button
+              key={tab.role}
+              onClick={() => setCurrentRole(tab.role)}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs whitespace-nowrap font-medium ${
+                currentRole === tab.role
+                  ? tab.variant === 'emerald'
+                    ? 'bg-emerald-600 text-white font-bold'
+                    : 'bg-orange-600 text-white font-bold'
+                  : tab.variant === 'emerald'
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-slate-100 text-slate-700'
+              }`}
+            >
+              {tab.icon}
+              <span>{t[tab.labelKey as keyof typeof t]}</span>
+            </button>
+          ))}
         </div>
       </div>
     </header>

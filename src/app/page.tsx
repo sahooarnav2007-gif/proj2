@@ -103,21 +103,21 @@ export default function Home() {
         {/* Quick Role & Feature Banner */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-700 dark:text-slate-300">Active View:</span>
+            <span className="font-bold text-slate-700 dark:text-slate-300">{t.activeView}:</span>
             <span className="bg-orange-100 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300 font-bold px-2.5 py-1 rounded-lg">
-              {currentRole === 'state_admin' && !showAIStudioView ? '🏛️ State / MSIS Policy Dashboard' :
-               currentRole === 'state_admin' && showAIStudioView ? '🧠 AI Predictive Studio' :
-               currentRole === 'training_provider' ? '🏫 Training Provider (TP/ITI) Intervention Hub' :
-               currentRole === 'employer' ? '🏢 Employer & Industry Verification Portal' :
-               currentRole === 'trainee' ? '📱 Trainee Career Cockpit & DPDP Vault' :
-               '🤖 Multi-Channel Re-Engagement Simulators'}
+              {currentRole === 'state_admin' && !showAIStudioView ? t.stateView :
+               currentRole === 'state_admin' && showAIStudioView ? t.aiStudioView :
+               currentRole === 'training_provider' ? t.tpView :
+               currentRole === 'employer' ? t.employerView :
+               currentRole === 'trainee' ? t.traineeView :
+               t.simulatorView}
             </span>
           </div>
 
           <div className="flex items-center gap-2">
             {currentRole === 'trainee' && (
               <div className="flex items-center gap-2">
-                <span className="text-slate-500">Switch Trainee Persona:</span>
+                <span className="text-slate-500">{t.switchTrainee}</span>
                 <select
                   value={activeTraineeIndex}
                   onChange={(e) => setActiveTraineeIndex(Number(e.target.value))}
@@ -138,7 +138,7 @@ export default function Home() {
                 className="flex items-center gap-1.5 bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 px-3 py-1 rounded-lg font-bold hover:bg-purple-200 transition"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{showAIStudioView ? 'Back to State KPI Overview' : 'View AI Attrition & Skill Gaps'}</span>
+                <span>{showAIStudioView ? t.backToState : t.viewAI}</span>
               </button>
             )}
           </div>

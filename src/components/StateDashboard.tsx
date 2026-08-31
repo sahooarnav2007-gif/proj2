@@ -262,7 +262,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <XAxis dataKey="milestone" stroke="#64748b" fontSize={12} />
                 <YAxis unit="%" domain={[40, 100]} stroke="#64748b" fontSize={12} />
                 <Tooltip 
-                  formatter={(value: any) => [`${value}%`]}
+                  formatter={(value: number) => [`${value}%`]}
                   contentStyle={{ backgroundColor: '#1e293b', color: '#fff', borderRadius: '8px', border: 'none' }}
                 />
                 <Legend />
@@ -297,7 +297,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <XAxis dataKey="name" stroke="#64748b" fontSize={10} interval={0} angle={-20} textAnchor="end" />
                 <YAxis stroke="#64748b" fontSize={11} tickFormatter={(val) => `₹${val/1000}k`} />
                 <Tooltip 
-                  formatter={(val: any) => [formatINR(Number(val))]}
+                  formatter={(val: number) => [formatINR(Number(val))]}
                   contentStyle={{ backgroundColor: '#1e293b', color: '#fff', borderRadius: '8px', border: 'none' }}
                 />
                 <Legend verticalAlign="top" height={36} />
@@ -422,7 +422,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
               {filteredDistricts.map((d) => (
-                <tr key={d.district} className="hover:bg-slate-50 dark:hover:bg-slate-750 transition">
+                <tr key={d.district} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition">
                   <td className="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-orange-500"></span>
                     <span>{d.district}</span>

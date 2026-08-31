@@ -18,6 +18,7 @@ import { SimulatorsContainer } from '@/components/Simulators';
 import { PredictiveAIStudio } from '@/components/PredictiveAIStudio';
 import { TraineeDetailModal } from '@/components/TraineeDetailModal';
 import { ExportReportModal } from '@/components/ExportReportModal';
+import { ConsentModal } from '@/components/ConsentModal';
 import { Sparkles, Bot, ShieldCheck, Award, HeartHandshake } from 'lucide-react';
 
 export default function Home() {
@@ -28,6 +29,7 @@ export default function Home() {
   const [selectedTrainee, setSelectedTrainee] = useState<Trainee | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [showAIStudioView, setShowAIStudioView] = useState<boolean>(false);
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState<boolean>(false);
 
   // Active trainee persona for trainee portal view
   const [activeTraineeIndex, setActiveTraineeIndex] = useState<number>(0);
@@ -68,7 +70,7 @@ export default function Home() {
   };
 
   // Handle bot outcome update
-  const handleBotOutcomeSubmitted = (data: any) => {
+  const handleBotOutcomeSubmitted = (data: { salary: number; status: string; channel: string }) => {
     setTrainees(prev => prev.map((t, idx) => {
       if (idx === 0) {
         return {
@@ -184,7 +186,7 @@ export default function Home() {
             currentLanguage={currentLanguage}
             trainee={trainees[activeTraineeIndex] || trainees[0]}
             onUpdateMilestone={handleUpdateMilestone}
-            onOpenConsentModal={() => {}}
+            onOpenConsentModal={() => setIsConsentModalOpen(true)}
             onOpenSimulators={() => setCurrentRole('simulators')}
           />
         )}
@@ -206,8 +208,23 @@ export default function Home() {
       {isExportModalOpen && (
         <ExportReportModal
           trainees={trainees}
-          districts={MAHARASHTRA_DISTRICTS}
           onClose={() => setIsExportModalOpen(false)}
+        />
+      )}
+
+      {/* Consent Modal */}
+      {isConsentModalOpen && (
+        <ConsentModal
+          trainee={trainees[activeTraineeIndex] || trainees[0]}
+          onClose={() => setIsConsentModalOpen(false)}
+          onSave={(consent) => {
+            setTrainees(prev => prev.map((t, idx) => {
+              if (idx === (activeTraineeIndex || 0)) {
+                return { ...t, activeConsent: consent };
+              }
+              return t;
+            }));
+          }}
         />
       )}
 

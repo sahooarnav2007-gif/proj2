@@ -3,6 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { SKILL_GAP_NLP_TOPICS } from '@/data/mockData';
 import { formatINR } from '@/lib/utils';
+import { calculateAttritionRisk } from '@/lib/attritionScore';
+import { AttritionPredictionInput } from '@/types';
 import { 
   BookOpen, 
   Sliders, 
@@ -21,63 +23,33 @@ export const PredictiveAIStudio: React.FC = () => {
 
   // Predictive algorithm calculation
   const prediction = useMemo(() => {
-    let baseScore = 20;
+    const input: AttritionPredictionInput = {
+      sector,
+      monthlySalary: salary,
+      commuteKm,
+      shiftType,
+      trainingRelevanceScore: relevance,
+      isInformal,
+      monthsInJob,
+      district: 'Pune',
+    };
+    const result = calculateAttritionRisk(input);
 
-    // Sector baseline adjustments
-    if (sector === 'Retail & Logistics') baseScore += 8;
-
-    // Wage vs Commute penalty
-    if (salary < 15000 && commuteKm > 20) baseScore += 35;
-    else if (salary < 18000 && commuteKm > 25) baseScore += 25;
-    else if (commuteKm > 30) baseScore += 18;
-
-    // Course relevance penalty
-    if (relevance <= 2) baseScore += 28;
-    else if (relevance === 3) baseScore += 12;
-    else baseScore -= 10;
-
-    // Informal penalty
-    if (isInformal) baseScore += 22;
-
-    // Shift type
-    if (shiftType === 'Rotational') baseScore += 10;
-    if (shiftType === 'Night') baseScore += 15;
-
-    // Months in job (early months 1-3 have highest churn)
-    if (monthsInJob <= 3) baseScore += 15;
-    else if (monthsInJob >= 12) baseScore -= 15;
-
-    const clampedScore = Math.max(5, Math.min(95, baseScore));
-
-    let level: 'Low' | 'Moderate' | 'High' | 'Critical' = 'Low';
     let color = 'text-emerald-600 dark:text-emerald-400';
     let bg = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300';
-    let intervention = 'Standard 6-month automated check-in cadence.';
 
-    if (clampedScore >= 75) {
-      level = 'Critical';
+    if (result.level === 'Critical') {
       color = 'text-rose-600 dark:text-rose-400';
       bg = 'bg-rose-50 dark:bg-rose-950/60 border-rose-300';
-      intervention = 'URGENT: Trigger dedicated counselor call within 48 hours + evaluate transport subsidy or job re-match.';
-    } else if (clampedScore >= 50) {
-      level = 'High';
+    } else if (result.level === 'High') {
       color = 'text-amber-600 dark:text-amber-400';
       bg = 'bg-amber-50 dark:bg-amber-950/60 border-amber-300';
-      intervention = 'Dispatch micro-survey on workplace satisfaction + offer weekend bridge upskilling module.';
-    } else if (clampedScore >= 30) {
-      level = 'Moderate';
+    } else if (result.level === 'Moderate') {
       color = 'text-blue-600 dark:text-blue-400';
       bg = 'bg-blue-50 dark:bg-blue-950/60 border-blue-300';
-      intervention = 'Monitor next monthly EPFO contribution + send peer community invite.';
     }
 
-    return {
-      score: clampedScore,
-      level,
-      color,
-      bg,
-      intervention
-    };
+    return { ...result, color, bg };
   }, [sector, salary, commuteKm, shiftType, relevance, isInformal, monthsInJob]);
 
   return (

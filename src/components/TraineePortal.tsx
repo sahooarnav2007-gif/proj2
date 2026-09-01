@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Trainee, Language } from '@/types';
+import { Trainee } from '@/types';
 import { formatINR } from '@/lib/utils';
 import { 
   Coins, 
@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 
 interface TraineePortalProps {
-  currentLanguage?: Language;
   trainee: Trainee;
   onUpdateMilestone: (month: number, salary: number, designation: string, company: string) => void;
   onOpenConsentModal?: () => void;
@@ -25,9 +24,11 @@ interface TraineePortalProps {
 export const TraineePortal: React.FC<TraineePortalProps> = ({
   trainee,
   onUpdateMilestone,
+  onOpenConsentModal,
   onOpenSimulators
 }) => {
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
+  const [newMonth, setNewMonth] = useState<number>(24);
   const [newSalary, setNewSalary] = useState<number>(trainee.currentSalary + 5000);
   const [newDesignation, setNewDesignation] = useState<string>(trainee.currentDesignation || '');
   const [newCompany, setNewCompany] = useState<string>(trainee.currentEmployer || '');
@@ -49,7 +50,7 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
 
   const handleMilestoneSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateMilestone(24, newSalary, newDesignation, newCompany);
+    onUpdateMilestone(newMonth, newSalary, newDesignation, newCompany);
     setShowUpdateModal(false);
     setUpdateSuccess(true);
     setTimeout(() => setUpdateSuccess(false), 5000);
@@ -133,6 +134,16 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
             <Smartphone className="w-4 h-4 text-emerald-400" />
             <span>Simulate WhatsApp Re-Engagement Chat</span>
           </button>
+
+          {onOpenConsentModal && (
+            <button
+              onClick={onOpenConsentModal}
+              className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-2.5 rounded-xl border border-white/20 transition"
+            >
+              <Lock className="w-4 h-4 text-cyan-400" />
+              <span>Manage DPDP Consent</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -335,6 +346,21 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
             </p>
 
             <form onSubmit={handleMilestoneSubmit} className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Milestone Month</label>
+                <select
+                  value={newMonth}
+                  onChange={(e) => setNewMonth(Number(e.target.value))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white font-medium"
+                >
+                  <option value={3}>Month 3 (90-Day Check-in)</option>
+                  <option value={6}>Month 6 (6-Month Follow-up)</option>
+                  <option value={12}>Month 12 (Annual Review)</option>
+                  <option value={24}>Month 24 (2-Year Milestone)</option>
+                  <option value={36}>Month 36 (3-Year Longitudinal)</option>
+                </select>
+              </div>
+
               <div>
                 <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Company / Enterprise Name</label>
                 <input

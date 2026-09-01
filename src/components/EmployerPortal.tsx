@@ -179,7 +179,7 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-medium">
               {queue.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-750 transition">
+                <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition">
                   <td className="py-3.5 px-4">
                     <div className="font-bold text-slate-900 dark:text-white text-sm">
                       {item.traineeName}

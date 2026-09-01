@@ -17,15 +17,15 @@ export const IVRSimulator: React.FC = () => {
   const [callLang, setCallLang] = useState<'mr' | 'hi'>('mr');
 
   useEffect(() => {
-    let interval: any;
+    let interval: ReturnType<typeof setInterval>;
     if (callState === 'connected') {
       interval = setInterval(() => {
         setAudioTimer(prev => prev + 1);
       }, 1000);
+      return () => clearInterval(interval);
     } else {
       setAudioTimer(0);
     }
-    return () => clearInterval(interval);
   }, [callState]);
 
   const startCall = () => {

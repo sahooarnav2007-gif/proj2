@@ -259,7 +259,7 @@ export const TrainingProviderPortal: React.FC<TrainingProviderPortalProps> = ({
               {filteredTrainees.map((t) => {
                 const statusInfo = getStatusBadgeInfo(t.currentStatus);
                 return (
-                  <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-750 transition">
+                  <tr key={t.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition">
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-slate-900 dark:text-white text-sm">
                         {t.fullName}

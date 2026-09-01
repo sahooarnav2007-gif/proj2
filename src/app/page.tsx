@@ -35,8 +35,6 @@ export default function Home() {
   const [showAIStudioView, setShowAIStudioView] = useState<boolean>(false);
   const [isConsentModalOpen, setIsConsentModalOpen] = useState<boolean>(false);
 
-  const t = translations[currentLanguage];
-
   // Active trainee persona for trainee portal view
   const [activeTraineeIndex, setActiveTraineeIndex] = useState<number>(0);
 

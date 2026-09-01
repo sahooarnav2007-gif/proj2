@@ -262,7 +262,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <XAxis dataKey="milestone" stroke="#64748b" fontSize={12} />
                 <YAxis unit="%" domain={[40, 100]} stroke="#64748b" fontSize={12} />
                 <Tooltip 
-                  formatter={(value: number) => [`${value}%`]}
+                  formatter={(value: any) => [`${value}%`]}
                   contentStyle={{ backgroundColor: '#1e293b', color: '#fff', borderRadius: '8px', border: 'none' }}
                 />
                 <Legend />
@@ -297,7 +297,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <XAxis dataKey="name" stroke="#64748b" fontSize={10} interval={0} angle={-20} textAnchor="end" />
                 <YAxis stroke="#64748b" fontSize={11} tickFormatter={(val) => `₹${val/1000}k`} />
                 <Tooltip 
-                  formatter={(val: number) => [formatINR(Number(val))]}
+                  formatter={(val: any) => [formatINR(Number(val))]}
                   contentStyle={{ backgroundColor: '#1e293b', color: '#fff', borderRadius: '8px', border: 'none' }}
                 />
                 <Legend verticalAlign="top" height={36} />

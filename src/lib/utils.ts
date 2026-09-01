@@ -1,4 +1,10 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { EmploymentStatus, VerificationStatus } from "@/types";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export function formatINR(amount: number): string {
   return new Intl.NumberFormat('en-IN', {

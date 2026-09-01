@@ -19,12 +19,14 @@ import { PredictiveAIStudio } from '@/components/PredictiveAIStudio';
 import { TraineeDetailModal } from '@/components/TraineeDetailModal';
 import { ExportReportModal } from '@/components/ExportReportModal';
 import { ConsentModal } from '@/components/ConsentModal';
+import { translations } from '@/lib/utils';
 import { Sparkles, Bot, ShieldCheck, Award, HeartHandshake } from 'lucide-react';
 
 export default function Home() {
   // Global State
   const [currentRole, setCurrentRole] = useState<Role>('state_admin');
   const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
+  const t = translations[currentLanguage] || translations.en;
   const [trainees, setTrainees] = useState<Trainee[]>(MOCK_TRAINEES);
   const [selectedTrainee, setSelectedTrainee] = useState<Trainee | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);

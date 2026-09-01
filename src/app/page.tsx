@@ -19,6 +19,7 @@ import { PredictiveAIStudio } from '@/components/PredictiveAIStudio';
 import { TraineeDetailModal } from '@/components/TraineeDetailModal';
 import { ExportReportModal } from '@/components/ExportReportModal';
 import { ConsentModal } from '@/components/ConsentModal';
+import { Footer } from '@/components/Footer';
 import { translations } from '@/lib/utils';
 import { Sparkles, Bot, ShieldCheck, Award, HeartHandshake } from 'lucide-react';
 
@@ -196,6 +197,10 @@ export default function Home() {
         {currentRole === 'simulators' && (
           <SimulatorsContainer onOutcomeSubmitted={handleBotOutcomeSubmitted} />
         )}
+
+        {currentRole === 'ai_studio' && (
+          <PredictiveAIStudio />
+        )}
       </main>
 
       {/* Trainee Detail Dossier Modal */}
@@ -230,25 +235,8 @@ export default function Home() {
         />
       )}
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mt-16 py-8 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800 dark:text-slate-200">Skill Sync</span>
-            <span>•</span>
-            <span>Smart India Hackathon 2026 (PS SIH26135)</span>
-            <span>•</span>
-            <span>Maharashtra State Innovation Society</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>DPDP Act 2023 Compliant</span>
-            </span>
-            <span>v2.6 Prototype</span>
-          </div>
-        </div>
-      </footer>
+      {/* Official Government of Maharashtra Footer */}
+      <Footer currentLanguage={currentLanguage} />
     </div>
   );
 }

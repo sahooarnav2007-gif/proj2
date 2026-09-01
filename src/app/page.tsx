@@ -20,6 +20,7 @@ import { TraineeDetailModal } from '@/components/TraineeDetailModal';
 import { ExportReportModal } from '@/components/ExportReportModal';
 import { ConsentModal } from '@/components/ConsentModal';
 import { Footer } from '@/components/Footer';
+
 import { translations } from '@/lib/utils';
 import { Sparkles, Bot, ShieldCheck, Award, HeartHandshake } from 'lucide-react';
 
@@ -33,6 +34,8 @@ export default function Home() {
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
   const [showAIStudioView, setShowAIStudioView] = useState<boolean>(false);
   const [isConsentModalOpen, setIsConsentModalOpen] = useState<boolean>(false);
+
+  const t = translations[currentLanguage];
 
   // Active trainee persona for trainee portal view
   const [activeTraineeIndex, setActiveTraineeIndex] = useState<number>(0);

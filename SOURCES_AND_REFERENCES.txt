@@ -1,0 +1,87 @@
+================================================================================
+🎓 SKILL SYNC — OFFICIAL SOURCES & REFERENCES
+Smart India Hackathon 2026 • Problem Statement: SIH26135
+Sponsored by: Government of Maharashtra (MSIS / Dept. of Skills)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. OFFICIAL HACKATHON & PROBLEM STATEMENT REFERENCES
+--------------------------------------------------------------------------------
+• Smart India Hackathon Official Portal:
+  https://sih.gov.in
+• SIH 2026 Problem Statements Repository (PS SIH26135):
+  https://sih.gov.in/sih2026PS
+• Ministry of Education's Innovation Cell (MIC):
+  https://mic.gov.in
+
+--------------------------------------------------------------------------------
+2. GOVERNMENT OF MAHARASHTRA OFFICIAL SCHEMES & DEPARTMENTS
+--------------------------------------------------------------------------------
+• Maharashtra State Innovation Society (MSIS - Problem Statement Creator):
+  https://msins.in
+• Department of Skills, Employment, Entrepreneurship & Innovation (GoM):
+  https://kaushalya.maharashtra.gov.in
+• Mahaswayam Portal (Maharashtra Skilling, Employment & Livelihood Gateway):
+  https://mahaswayam.gov.in
+• Maharashtra State Skill Development Society (MSSDS):
+  https://mssds.gov.in
+• Pramod Mahajan Kaushalya Vikas Abhiyan (PMKVA - State Skilling Mission):
+  https://pmkva.maharashtra.gov.in
+• Mukhyamantri Yuva Karya Prashikshan Yojana (MYKPY - Youth Apprenticeship):
+  https://mykpy.maharashtra.gov.in
+
+--------------------------------------------------------------------------------
+3. NATIONAL SKILLING, APPRENTICESHIP & VOCATIONAL FRAMEWORKS
+--------------------------------------------------------------------------------
+• Skill India Digital Hub (SIDH - Ministry of Skill Development & Entrepreneurship):
+  https://www.skillindiadigital.gov.in
+• National Skill Development Corporation (NSDC):
+  https://nsdcindia.org
+• Directorate General of Training (DGT - ITI Ecosystem):
+  https://dgt.gov.in
+• National Apprenticeship Promotion Scheme (NAPS / NATS):
+  https://www.apprenticeshipindia.gov.in
+• National Career Service (NCS - Ministry of Labour & Employment):
+  https://www.ncs.gov.in
+
+--------------------------------------------------------------------------------
+4. EMPLOYMENT VERIFICATION & TRIANGULATION REGISTRIES (NATIONAL PROXIES)
+--------------------------------------------------------------------------------
+• Employees' Provident Fund Organisation (EPFO - Formal Wage Triangulation):
+  https://www.epfindia.gov.in
+• Employees' State Insurance Corporation (ESIC):
+  https://www.esic.gov.in
+• Udyam MSME Registration Portal (Ministry of MSME - Self-Employment):
+  https://udyamregistration.gov.in
+• Pradhan Mantri MUDRA Yojana (PMMY - Micro-Enterprise Credit Tracking):
+  https://www.mudra.org.in
+• DigiLocker API & Verifiable Credentials Gateway (MeitY):
+  https://www.digilocker.gov.in
+• APAAR ID (Automated Permanent Academic Account Registry / One Nation One Student ID):
+  https://apaar.education.gov.in
+
+--------------------------------------------------------------------------------
+5. DATA PRIVACY, LEGAL & REGULATORY COMPLIANCE
+--------------------------------------------------------------------------------
+• Digital Personal Data Protection Act 2023 (DPDP Act 2023 Gazette of India):
+  https://www.meity.gov.in/content/digital-personal-data-protection-act-2023
+• Unique Identification Authority of India (UIDAI - Aadhaar Tokenization Framework):
+  https://uidai.gov.in
+• National Data Governance Framework Policy (NDGFP):
+  https://www.meity.gov.in
+
+--------------------------------------------------------------------------------
+6. TECHNICAL STACK & OPEN-SOURCE FRAMEWORKS USED
+--------------------------------------------------------------------------------
+• Next.js 14 Documentation (Full-Stack React Framework):
+  https://nextjs.org
+• Recharts (Composable SVG Charting Engine):
+  https://recharts.org
+• Tailwind CSS (Utility-First Styling Framework):
+  https://tailwindcss.com
+• Lucide Icons (Accessible Vector Icon System):
+  https://lucide.dev
+
+================================================================================
+FILE SAVED AT: C:\Users\HP\OneDrive\Documents\skill-sync\SOURCES_AND_REFERENCES.txt
+================================================================================

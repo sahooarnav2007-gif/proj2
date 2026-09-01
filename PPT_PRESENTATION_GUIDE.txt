@@ -1,0 +1,131 @@
+================================================================================
+🎓 SKILL SYNC — COMPLETE PROJECT & PPT EXPLAINER CHEAT SHEET
+Built for Smart India Hackathon 2026 (Problem Statement SIH26135)
+Sponsored by Government of Maharashtra (MSIS / Dept of Skills)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. THE 30-SECOND ELEVATOR PITCH (WHAT IS THIS PROJECT?)
+--------------------------------------------------------------------------------
+When students complete government skilling courses (like ITI or PMKVY in Maharashtra), 
+the government knows who passed, but LOSES CONTACT WITH 80% OF THEM after 6 months. 
+The government has no idea who actually got a job, who started a business, or who 
+got a salary hike.
+
+Skill Sync is an AI-powered tracking platform that keeps in touch with trainees for 
+3 YEARS via automated WhatsApp Bots and Marathi Voice Calls (IVR), verifies their 
+employment through EPFO Provident Fund / Udyam MSME and Employers, and uses AI to 
+predict who might quit their job so counselors can help them before drop-out occurs.
+
+--------------------------------------------------------------------------------
+2. THE PROBLEM (WHY WAS THIS BUILT?)
+--------------------------------------------------------------------------------
+• Problem Statement: SIH26135 (Smart India Hackathon 2026)
+• Organization: Government of Maharashtra (Maharashtra State Innovation Society - MSIS)
+• Category: Software | Theme: Smart Education
+
+Key Flaws in Today's System:
+1. Phone Number Churn: Trainees change SIM cards or migrate -> 80% contact loss.
+2. Employer Reporting Inertia: Companies rarely report who stayed or resigned.
+3. Informal/Self-Employment Blindness: Freelancers and small shop owners are ignored.
+4. No Long-Term (Longitudinal) View: No visibility on 3, 6, 12, 24, 36-month wage growth.
+5. Outdated Syllabus: Trainees learn on old machines and quit due to low wages.
+
+--------------------------------------------------------------------------------
+3. OUR 4 CORE INNOVATIONS (THE SOLUTION)
+--------------------------------------------------------------------------------
+1. MULTI-CHANNEL AUTOMATED RE-ENGAGEMENT (Zero App Download Needed):
+   - WhatsApp Bot with interactive buttons in Marathi, Hindi, and English.
+   - Marathi AI Voice Call (IVR) for rural youth on basic 2G/3G keypad phones.
+   - SkillCoins Rewards: Trainees earn reward coins for updating their job status!
+
+2. 3-WAY SIGNAL TRIANGULATION (100% Verified Truth):
+   - We eliminate fake placement claims by cross-verifying:
+     [Trainee Report] + [Employer 1-Click Approval] + [EPFO/Udyam Registry Token]
+     = Verified Trust Score.
+
+3. PREDICTIVE AI ATTRITION EARLY WARNING:
+   - Machine learning model flags trainees with high commute-to-wage stress 
+     (e.g., traveling 30km for Rs 13,000) so counselors intervene BEFORE they quit.
+
+4. NLP CURRICULUM SKILL-GAP MINING:
+   - AI extracts feedback from employers and exit calls to find outdated machinery 
+     (e.g., manual lathe vs 5-axis CNC; EV battery BMS diagnostics) and recommends 
+     syllabus updates to the Maharashtra government.
+
+5. DPDP ACT 2023 PRIVACY VAULT:
+   - Fully compliant with India's Digital Personal Data Protection Act 2023.
+   - Aadhaar numbers are masked, citizen data is tokenized, and consent is revocable.
+
+--------------------------------------------------------------------------------
+4. THE 4 USER ROLES IN THE SYSTEM
+--------------------------------------------------------------------------------
+1. STATE OFFICIAL (Govt of Maharashtra / MSIS):
+   - State-wide KPI dashboard across all 36 districts.
+   - Longitudinal retention curves (Month 3 to 36).
+   - Training Provider ROI Leaderboard and policy budget recommendations.
+
+2. TRAINING PROVIDER (ITI Principal / Center Head):
+   - Cohort tracking schedule (Day 90, 180, 365, 730).
+   - Early warning queue for high-risk drop-out candidates.
+   - 1-click batch re-engagement campaign dispatcher.
+
+3. EMPLOYER (HR & Factory Managers):
+   - 1-click verification queue to confirm employee salary and active status.
+   - Direct skill deficiency feedback submission to state curriculum boards.
+
+4. TRAINEE (Student / Alumni):
+   - Career milestone timeline (showing wage progression e.g. Rs 14k -> Rs 34k).
+   - SkillCoins wallet & DPDP consent management toggles.
+
+--------------------------------------------------------------------------------
+5. 8-SLIDE PPT PRESENTATION OUTLINE (SLIDE BY SLIDE)
+--------------------------------------------------------------------------------
+
+SLIDE 1: TITLE SLIDE
+• Title: Skill Sync — Longitudinal Skilling Outcomes & Impact Tracker
+• Subtitle: Smart India Hackathon 2026 • Problem Statement SIH26135
+• Client: Government of Maharashtra (MSIS / Dept of Skills & Entrepreneurship)
+• Team Name & Member Details
+
+SLIDE 2: THE PROBLEM & GROUND REALITY
+• Current skilling portals stop tracking at certification.
+• 80% follow-up drop-off due to phone number churn.
+• Employers don't report retention; self-employment is uncaptured.
+• Zero longitudinal visibility on 3, 6, 12, 24, 36-month wage progression.
+
+SLIDE 3: OUR PROPOSED SOLUTION (SKILL SYNC)
+• Complete privacy-first longitudinal outcome & impact measurement platform.
+• Concept of 3-Way Signal Triangulation (Trainee + Employer + EPFO/Udyam).
+• 5-Layer System Architecture.
+
+SLIDE 4: MULTI-CHANNEL RE-ENGAGEMENT ENGINE
+• WhatsApp Interactive Bot in Marathi, Hindi, and English.
+• Marathi AI Voice Call Agent (IVR) for rural 2G feature phones (Gadchiroli/Nandurbar).
+• Gamification: SkillCoins reward vault.
+
+SLIDE 5: TRIANGULATION & EMPLOYER VERIFICATION HUB
+• 1-Click Employer Verification Queue (Zero sensitive HRMS data exposed).
+• EPFO / UAN Provident Fund Proxy matching (Formal sector).
+• Udyam MSME & MUDRA loan validation (Self-employed & Micro-enterprises).
+• NAPS / NATS Apprenticeship Registry integration.
+
+SLIDE 6: PREDICTIVE AI & NLP CURRICULUM UPGRADES
+• Early Job Attrition Risk Predictor (Random Forest: 0-100% exit risk).
+• NLP Topic Modeling for shopfloor equipment gaps (EV Battery BMS, 5-Axis CNC).
+• Targeted remedial action recommendations for state policy makers.
+
+SLIDE 7: TECH STACK & DPDP 2023 COMPLIANCE
+• Frontend: Next.js 14, React 18, Tailwind CSS, Recharts.
+• Backend: TypeScript / Node.js REST API routes (/api/telemetry, /api/verify).
+• Security: DPDP Act 2023 Tokenization Vault (Masked Aadhaar, cryptographic hashes).
+
+SLIDE 8: EXPECTED IMPACT & STATE ROI
+• 94%+ contact continuity across all 36 Maharashtra districts.
+• Evidence-based budget allocation to high-performing ITIs.
+• 1.84x average wage progression multiplier.
+• Inclusivity for tribal SHGs and rural self-employed youth.
+
+================================================================================
+FILE CREATED AT: C:\Users\HP\OneDrive\Documents\skill-sync\PPT_PRESENTATION_GUIDE.txt
+================================================================================

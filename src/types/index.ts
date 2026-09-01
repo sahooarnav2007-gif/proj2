@@ -1,4 +1,4 @@
-export type Role = 'state_admin' | 'training_provider' | 'employer' | 'trainee' | 'simulators';
+export type Role = 'state_admin' | 'training_provider' | 'employer' | 'trainee' | 'simulators' | 'ai_studio';
 
 export type Language = 'en' | 'mr' | 'hi';
 

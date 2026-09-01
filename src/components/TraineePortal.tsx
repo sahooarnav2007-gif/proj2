@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Trainee } from '@/types';
+import { Trainee, Language } from '@/types';
 import { formatINR } from '@/lib/utils';
 import { 
   Coins, 
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 interface TraineePortalProps {
+  currentLanguage?: Language;
   trainee: Trainee;
   onUpdateMilestone: (month: number, salary: number, designation: string, company: string) => void;
   onOpenConsentModal?: () => void;

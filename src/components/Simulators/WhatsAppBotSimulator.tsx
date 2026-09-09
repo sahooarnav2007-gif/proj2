@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { 
@@ -7,9 +7,16 @@ import {
   ShieldCheck, 
   RotateCcw, 
   Paperclip,
-  Phone,
-  Video,
-  MoreVertical
+  Phone, 
+  Video, 
+  MoreVertical,
+  Camera,
+  Mic,
+  FileText,
+  Sparkles,
+  Award,
+  Play,
+  Pause
 } from 'lucide-react';
 
 interface Message {
@@ -19,6 +26,8 @@ interface Message {
   timestamp: string;
   buttons?: { id: string; label: string }[];
   isSalarySlip?: boolean;
+  isAudioVoiceNote?: boolean;
+  audioDuration?: string;
 }
 
 export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void }> = ({ onOutcomeSubmitted }) => {
@@ -32,6 +41,8 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
       buttons: [
         { id: 'same_job', label: '✅ हो, कार्यरत आहे' },
         { id: 'promoted', label: '🚀 हो, पदोन्नती झाली' },
+        { id: 'upload_slip', label: '📸 सॅलरी स्लिप फोटो पाठवा' },
+        { id: 'voice_note', label: '🎙️ व्हॉईस मेसेजने सांगा' },
         { id: 'self_emp', label: '💼 स्वतःचा व्यवसाय सुरू केला' },
         { id: 'seeking', label: '🔍 नवीन नोकरी शोधत आहे' }
       ]
@@ -40,6 +51,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
 
   const [inputVal, setInputVal] = useState<string>('');
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [isPlayingVoice, setIsPlayingVoice] = useState<boolean>(false);
 
   const switchLanguage = (newLang: 'mr' | 'en' | 'hi') => {
     setLang(newLang);
@@ -53,6 +65,8 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
           buttons: [
             { id: 'same_job', label: '✅ हो, कार्यरत आहे' },
             { id: 'promoted', label: '🚀 हो, पदोन्नती झाली' },
+            { id: 'upload_slip', label: '📸 सॅलरी स्लिप फोटो पाठवा' },
+            { id: 'voice_note', label: '🎙️ व्हॉईस मेसेजने सांगा' },
             { id: 'self_emp', label: '💼 स्वतःचा व्यवसाय सुरू केला' },
             { id: 'seeking', label: '🔍 नवीन नोकरी शोधत आहे' }
           ]
@@ -68,6 +82,8 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
           buttons: [
             { id: 'same_job', label: '✅ Yes, Same Job' },
             { id: 'promoted', label: '🚀 Promoted / Salary Hike' },
+            { id: 'upload_slip', label: '📸 Upload Salary Slip Photo' },
+            { id: 'voice_note', label: '🎙️ Send Voice Note' },
             { id: 'self_emp', label: '💼 Started Own Business' },
             { id: 'seeking', label: '🔍 Looking for New Job' }
           ]
@@ -83,6 +99,8 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
           buttons: [
             { id: 'same_job', label: '✅ हाँ, कार्यरत हूँ' },
             { id: 'promoted', label: '🚀 पदोन्नति / वेतन वृद्धि' },
+            { id: 'upload_slip', label: '📸 सैलरी स्लिप फोटो भेजें' },
+            { id: 'voice_note', label: '🎙️ वॉइस मैसेज भेजें' },
             { id: 'self_emp', label: '💼 खुद का व्यवसाय शुरू किया' },
             { id: 'seeking', label: '🔍 नई नौकरी खोज रहा हूँ' }
           ]
@@ -92,7 +110,15 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
   };
 
   const handleButtonClick = (btn: { id: string; label: string }) => {
-    // Add user response
+    if (btn.id === 'upload_slip') {
+      triggerSalarySlipUpload();
+      return;
+    }
+    if (btn.id === 'voice_note') {
+      triggerVoiceNoteUpload();
+      return;
+    }
+
     const userMsg: Message = {
       id: Date.now().toString(),
       sender: 'user',
@@ -157,6 +183,73 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
     }, 1000);
   };
 
+  const triggerSalarySlipUpload = () => {
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      sender: 'user',
+      text: '📄 [Salary Slip Photo Attached: payslip_feb2026.png]',
+      timestamp: '10:44 AM',
+      isSalarySlip: true
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setIsTyping(false);
+      const ocrConfirmation = lang === 'mr'
+        ? '🤖 AI OCR स्कॅनिंग पूर्ण:\n\n🏢 नियोक्ता: Tata Motors Passenger Vehicles Ltd\n💰 निव्वळ मासिक वेतन: ₹34,500\n🆔 UAN: 100984128912\n\n🔒 EPFO डेटाबेसशी १००% जुळवणी झाली. +50 SkillCoins मिळाले आहेत!'
+        : '🤖 AI OCR Extraction Complete:\n\n🏢 Employer: Tata Motors Passenger Vehicles Ltd\n💰 Net Monthly Wage: ₹34,500\n🆔 UAN: 100984128912\n\n🔒 100% EPFO Match Verified. +50 SkillCoins awarded!';
+
+      setMessages(prev => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          sender: 'bot',
+          text: ocrConfirmation,
+          timestamp: '10:44 AM'
+        }
+      ]);
+
+      if (onOutcomeSubmitted) {
+        onOutcomeSubmitted({ salary: 34500, status: 'employed_formal', channel: 'whatsapp_ocr' });
+      }
+    }, 1400);
+  };
+
+  const triggerVoiceNoteUpload = () => {
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      sender: 'user',
+      text: '🎙️ "मी अजूनही टाटा मोटर्समध्ये काम करतोय, मासिक पगार ३४,००० रुपये आहे."',
+      timestamp: '10:44 AM',
+      isAudioVoiceNote: true,
+      audioDuration: '0:07'
+    };
+    setMessages(prev => [...prev, userMsg]);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setIsTyping(false);
+      const voiceReply = lang === 'mr'
+        ? '🤖 व्हॉईस-टू-टेक्स्ट AI ने माहिती नोंदवली:\n\n"काम: Tata Motors | वेतन: ₹34,000"\n\n✅ माहिती राज्य डॅशबोर्डवर थेट सिंक झाली. +50 SkillCoins मिळाले!'
+        : '🤖 Vernacular Speech-to-Text Parsed:\n\n"Status: Tata Motors | Wage: ₹34,000"\n\n✅ Data synced with State Policy Dashboard. +50 SkillCoins awarded!';
+
+      setMessages(prev => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          sender: 'bot',
+          text: voiceReply,
+          timestamp: '10:44 AM'
+        }
+      ]);
+
+      if (onOutcomeSubmitted) {
+        onOutcomeSubmitted({ salary: 34000, status: 'employed_formal', channel: 'whatsapp_voice' });
+      }
+    }, 1200);
+  };
+
   const handleSendText = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputVal.trim()) return;
@@ -165,7 +258,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
       id: Date.now().toString(),
       sender: 'user',
       text: inputVal,
-      timestamp: '10:44 AM'
+      timestamp: '10:45 AM'
     };
 
     setMessages(prev => [...prev, userMsg]);
@@ -175,7 +268,6 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
 
     setTimeout(() => {
       setIsTyping(false);
-
       const replyText = lang === 'mr'
         ? `✅ धन्यवाद स्वप्निलजी! तुमची माहिती (मासिक वेतन: ₹${entered}) सुरक्षितपणे नोंदवली गेली आहे. \n\n🔒 EPFO डेटाबेसशी जुळवणी पूर्ण झाली (Trust Score: 98%). \n🪙 तुम्हाला +50 SkillCoins मिळाले आहेत!`
         : lang === 'en'
@@ -188,7 +280,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
           id: (Date.now() + 1).toString(),
           sender: 'bot',
           text: replyText,
-          timestamp: '10:44 AM'
+          timestamp: '10:45 AM'
         }
       ]);
 
@@ -204,26 +296,27 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+      
+      {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              WhatsApp Conversational Re-Engagement Bot (Live Simulator)
+              WhatsApp & RCS Conversational Re-Engagement Bot
             </h3>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Zero-app friction: Trainees update job continuity, promotions, or self-employment via interactive WhatsApp buttons.
+            Zero-app friction: Trainees update job continuity, promotions, salary slip photos, or vernacular voice notes with 1 tap.
           </p>
         </div>
 
-        {/* Language Switcher for Bot */}
+        {/* Quick Demo Presets */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-500">Bot Language:</span>
-          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
             <button
               onClick={() => switchLanguage('mr')}
-              className={`px-2.5 py-1 rounded font-bold transition ${
+              className={`px-2.5 py-1 rounded-lg font-bold transition ${
                 lang === 'mr' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
               }`}
             >
@@ -231,7 +324,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
             </button>
             <button
               onClick={() => switchLanguage('hi')}
-              className={`px-2.5 py-1 rounded font-bold transition ${
+              className={`px-2.5 py-1 rounded-lg font-bold transition ${
                 lang === 'hi' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
               }`}
             >
@@ -239,7 +332,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
             </button>
             <button
               onClick={() => switchLanguage('en')}
-              className={`px-2.5 py-1 rounded font-bold transition ${
+              className={`px-2.5 py-1 rounded-lg font-bold transition ${
                 lang === 'en' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
               }`}
             >
@@ -249,7 +342,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
 
           <button
             onClick={() => switchLanguage(lang)}
-            className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500"
+            className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 transition"
             title="Reset Chat"
           >
             <RotateCcw className="w-4 h-4" />
@@ -258,9 +351,10 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
       </div>
 
       {/* WhatsApp Phone Mockup */}
-      <div className="max-w-md mx-auto bg-slate-950 rounded-[36px] p-3 shadow-2xl border-4 border-slate-700">
-        <div className="w-full h-[580px] bg-[#0b141a] rounded-[28px] overflow-hidden flex flex-col relative text-white font-sans">
-          {/* WhatsApp Header */}
+      <div className="max-w-md mx-auto bg-slate-950 rounded-[38px] p-3 shadow-2xl border-4 border-slate-700">
+        <div className="w-full h-[620px] bg-[#0b141a] rounded-[30px] overflow-hidden flex flex-col relative text-white font-sans">
+          
+          {/* Header */}
           <div className="bg-[#1f2c34] px-4 py-3 flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-2.5">
               <div className="relative">
@@ -285,7 +379,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
             </div>
           </div>
 
-          {/* Chat Messages Body */}
+          {/* Chat Messages */}
           <div className="flex-1 p-3 overflow-y-auto space-y-3 bg-[#0b141a] text-xs">
             <div className="text-center my-1">
               <span className="bg-[#182229] text-slate-400 text-[10px] px-2.5 py-1 rounded-md shadow-xs">
@@ -299,22 +393,60 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
                 className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl p-3 shadow-md whitespace-pre-wrap leading-relaxed ${
+                  className={`max-w-[88%] rounded-2xl p-3 shadow-md whitespace-pre-wrap leading-relaxed ${
                     msg.sender === 'user'
                       ? 'bg-[#005c4b] text-white rounded-tr-none'
                       : 'bg-[#202c33] text-slate-100 rounded-tl-none'
                   }`}
                 >
+                  {/* Salary Slip Image Mockup */}
+                  {msg.isSalarySlip && (
+                    <div className="mb-2 bg-slate-900/90 p-2.5 rounded-xl border border-emerald-500/40 text-[11px] font-mono">
+                      <div className="flex items-center gap-1.5 text-emerald-400 font-bold mb-1">
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>PAYSLIP_FEB2026.PNG</span>
+                      </div>
+                      <div className="text-[10px] text-slate-300">
+                        Employer: Tata Motors Passenger Vehicles<br />
+                        Gross: ₹34,500 | Net: ₹30,850
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Audio Voice Note Visual */}
+                  {msg.isAudioVoiceNote && (
+                    <div className="mb-2 bg-[#00473a] p-2 rounded-xl flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsPlayingVoice(!isPlayingVoice)}
+                        className="w-7 h-7 rounded-full bg-white text-emerald-800 flex items-center justify-center font-bold"
+                      >
+                        {isPlayingVoice ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 fill-emerald-800" />}
+                      </button>
+                      <div className="flex-1 flex items-center gap-0.5 h-4">
+                        {[40, 90, 60, 100, 75, 45, 80, 50, 95, 30].map((h, i) => (
+                          <div
+                            key={i}
+                            className={`w-1 rounded-full ${isPlayingVoice ? 'bg-cyan-300 animate-pulse' : 'bg-white/60'}`}
+                            style={{ height: `${h}%` }}
+                          ></div>
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-cyan-200">{msg.audioDuration}</span>
+                    </div>
+                  )}
+
                   <p>{msg.text}</p>
+
                   <div className="flex items-center justify-end gap-1 mt-1 text-[10px] text-slate-400">
                     <span>{msg.timestamp}</span>
                     {msg.sender === 'user' && <CheckCheck className="w-3.5 h-3.5 text-cyan-400" />}
                   </div>
                 </div>
 
-                {/* Interactive Buttons */}
+                {/* Interactive Action Buttons */}
                 {msg.buttons && (
-                  <div className="mt-2 space-y-1.5 w-[85%]">
+                  <div className="mt-2 space-y-1.5 w-[88%]">
                     {msg.buttons.map((btn) => (
                       <button
                         key={btn.id}
@@ -339,9 +471,37 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
             )}
           </div>
 
-          {/* WhatsApp Bottom Input */}
+          {/* Quick Shortcuts Bar */}
+          <div className="px-3 py-1.5 bg-[#182229] border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-300">
+            <span className="text-[10px] text-slate-400">Demo Shortcuts:</span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={triggerSalarySlipUpload}
+                className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-[10px] text-cyan-300 font-bold"
+              >
+                <Camera className="w-3 h-3" />
+                <span>Pay Slip OCR</span>
+              </button>
+              <button
+                type="button"
+                onClick={triggerVoiceNoteUpload}
+                className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 px-2 py-0.5 rounded text-[10px] text-amber-300 font-bold"
+              >
+                <Mic className="w-3 h-3" />
+                <span>Voice Note</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Input Form */}
           <form onSubmit={handleSendText} className="p-2 bg-[#1f2c34] flex items-center gap-2 border-t border-slate-800">
-            <button type="button" className="text-slate-400 hover:text-slate-200 p-1">
+            <button
+              type="button"
+              onClick={triggerSalarySlipUpload}
+              title="Attach Payslip"
+              className="text-slate-400 hover:text-cyan-300 p-1 transition"
+            >
               <Paperclip className="w-4 h-4" />
             </button>
             <input
@@ -360,6 +520,7 @@ export const WhatsAppBotSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) =
           </form>
         </div>
       </div>
+
     </div>
   );
 };

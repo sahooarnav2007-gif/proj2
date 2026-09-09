@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Language, DistrictMetric, TrainingProviderMetric, SectorOutcome } from '@/types';
 import { translations, formatINR, formatPercent } from '@/lib/utils';
 import { MaharashtraGeoMap } from '@/components/MaharashtraGeoMap';
+import { StressTestBench } from '@/components/StressTestBench';
 import { 
   Users, 
   TrendingUp, 
@@ -17,7 +18,9 @@ import {
   ChevronRight,
   BarChart3,
   Map,
-  Table as TableIcon
+  Table as TableIcon,
+  Zap,
+  X
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -58,6 +61,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   const [selectedTier, setSelectedTier] = useState<string>('All');
   const [searchDistrictQuery, setSearchDistrictQuery] = useState<string>('');
   const [districtViewMode, setDistrictViewMode] = useState<'map' | 'table'>('map');
+  const [isStressTestOpen, setIsStressTestOpen] = useState<boolean>(false);
 
   // Aggregated statewide numbers
   const stateStats = useMemo(() => {
@@ -133,10 +137,17 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 Continuous 3-to-36 month post-training tracking triangulating Trainee self-reports, EPFO provident fund activity, and Udyam business signals across all 36 districts.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => setIsStressTestOpen(true)}
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-purple-600/20 transition hover:scale-105 active:scale-95"
+              >
+                <Zap className="w-4 h-4" />
+                <span>50k Trainee Scale Bench</span>
+              </button>
               <button
                 onClick={onOpenAIStudio}
-                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-orange-500/20 transition"
+                className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-orange-500/20 transition hover:scale-105 active:scale-95"
               >
                 <TrendingUp className="w-4 h-4" />
                 <span>Open Predictive Attrition AI Studio</span>
@@ -625,6 +636,28 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
           ))}
         </div>
       </div>
+
+      {/* 50k Trainee Scale Bench Modal */}
+      {isStressTestOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 w-full max-w-4xl rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-purple-400" />
+                <h3 className="font-bold text-base text-white">Live State-Wide Scaling Benchmark</h3>
+              </div>
+              <button
+                onClick={() => setIsStressTestOpen(false)}
+                className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <StressTestBench />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

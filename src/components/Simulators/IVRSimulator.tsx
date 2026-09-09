@@ -21,30 +21,111 @@ export const IVRSimulator: React.FC = () => {
   const [callLang, setCallLang] = useState<'mr' | 'hi'>('mr');
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
   const [coinsEarned, setCoinsEarned] = useState<boolean>(false);
+  const [voiceLoaded, setVoiceLoaded] = useState<boolean>(false);
 
-  // Audio Speech Synthesis
-  const synthRef = useRef<SpeechSynthesis | null>(null);
-
+  // Audio Speech Synthesis & Voice Detection
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      synthRef.current = window.speechSynthesis;
+      const loadVoices = () => {
+        const v = window.speechSynthesis.getVoices();
+        if (v.length > 0) {
+          setVoiceLoaded(true);
+        }
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
     }
   }, []);
 
-  const speakPrompt = (text: string, lang: 'mr' | 'hi') => {
-    if (!synthRef.current || isMuted) return;
-    synthRef.current.cancel();
+  // Web Audio DTMF Keypad Tones
+  const playDTMFTone = (key: string) => {
+    try {
+      if (typeof window === 'undefined') return;
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      
+      const dtmfFreqs: Record<string, [number, number]> = {
+        '1': [697, 1209],
+        '2': [697, 1336],
+        '3': [697, 1477],
+        'dial': [400, 450]
+      };
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang === 'mr' ? 'mr-IN' : 'hi-IN';
-    utterance.rate = 0.95;
-    utterance.pitch = 1.0;
+      const [f1, f2] = dtmfFreqs[key] || [770, 1336];
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc1.frequency.value = f1;
+      osc2.frequency.value = f2;
+      
+      gainNode.gain.setValueAtTime(0.18, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+
+      osc1.connect(gainNode);
+      osc2.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+      osc1.stop(ctx.currentTime + 0.3);
+      osc2.stop(ctx.currentTime + 0.3);
+    } catch (e) {
+      console.warn('Web Audio not supported:', e);
+    }
+  };
+
+  const speakPrompt = (devanagariText: string, phoneticText: string, lang: 'mr' | 'hi') => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window) || isMuted) return;
+    window.speechSynthesis.cancel();
+
+    const voices = window.speechSynthesis.getVoices();
+    
+    // Find native regional voice (Marathi or Hindi)
+    const nativeVoice = voices.find(v => {
+      const vLang = v.lang.toLowerCase();
+      const vName = v.name.toLowerCase();
+      if (lang === 'mr') {
+        return vLang.startsWith('mr') || vName.includes('marathi');
+      }
+      return vLang.startsWith('hi') || vName.includes('hindi');
+    });
+
+    // Indian English fallback voice if available
+    const indianVoice = nativeVoice || voices.find(v => 
+      v.lang.toLowerCase().includes('in') || 
+      v.name.toLowerCase().includes('india') ||
+      v.name.toLowerCase().includes('hindi') ||
+      v.name.toLowerCase().includes('marathi')
+    );
+
+    // If native Devanagari TTS voice is available, use Devanagari text.
+    // If standard English TTS is used, use Romanized phonetic text so English TTS pronounces full words without skipping!
+    const textToSpeak = nativeVoice ? devanagariText : phoneticText;
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+
+    if (nativeVoice) {
+      utterance.voice = nativeVoice;
+      utterance.lang = lang === 'mr' ? 'mr-IN' : 'hi-IN';
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+    } else if (indianVoice) {
+      utterance.voice = indianVoice;
+      utterance.lang = 'en-IN';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.05;
+    } else {
+      utterance.lang = 'en-US';
+      utterance.rate = 0.88;
+      utterance.pitch = 1.02;
+    }
 
     utterance.onstart = () => setIsPlayingAudio(true);
     utterance.onend = () => setIsPlayingAudio(false);
     utterance.onerror = () => setIsPlayingAudio(false);
 
-    synthRef.current.speak(utterance);
+    window.speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {
@@ -55,23 +136,30 @@ export const IVRSimulator: React.FC = () => {
       }, 1000);
 
       // Auto-trigger voice synthesis when connected
-      const promptText = callLang === 'mr'
+      const devanagariPrompt = callLang === 'mr'
         ? "नमस्कार मनीषाजी! कौशल्य विकास विभागाकडून हा कॉल आहे. औषधी वनस्पती प्रक्रिया प्रशिक्षणानंतर तुम्ही सध्या काम करत आहात का? बचत गटामध्ये किंवा स्वयंरोजगारासाठी एक दाबा. कंपनीत नोकरीसाठी दोन दाबा. काम शोधत असल्यास तीन दाबा."
-        : "नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। जड़ी-बूटी प्रसंस्करण प्रशिक्षण के बाद क्या आप कार्यरत हैं? स्वरोजगार के लिए एक दबाएं। नौकरी के लिए दो दबाएं।";
+        : "नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। जड़ी-बूटी प्रसंस्करण प्रशिक्षण के बाद क्या आप कार्यरत हैं? स्वयं सहायता समूह या स्वरोजगार के लिए एक दबाएं। कंपनी में नौकरी के लिए दो दबाएं। काम की तलाश में हैं तो तीन दबाएं।";
+
+      const phoneticPrompt = callLang === 'mr'
+        ? "Namaskaar Manishaji! Maharashtra Kaushalya Vikas Vibhaaga kadun ha call aahe. Aushadhi vanaspati prakriya prashikshananantar tumhi sadhya kaam karat aahat ka? Bachat gat kinva swayam-rojgaarasathi ek daba. Companyt nokreesathi don daba. Kaam shodhat aaslyas teen daba."
+        : "Namaste Manishaji! Maharashtra Kaushal Vikas Vibhag ki or se yeh call hai. Jadi-booti prashikshan ke baad kya aap karyarat hain? Swayam sahayata samooh ya swarojgaar ke liye ek dabayein. Company mein naukree ke liye do dabayein. Kaam ki talaash mein hain toh teen dabayein.";
       
-      speakPrompt(promptText, callLang);
+      speakPrompt(devanagariPrompt, phoneticPrompt, callLang);
 
       return () => {
         clearInterval(interval);
-        if (synthRef.current) synthRef.current.cancel();
+        if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
       };
     } else {
       setAudioTimer(0);
       setIsPlayingAudio(false);
     }
-  }, [callState, callLang]);
+  }, [callState, callLang, voiceLoaded]);
 
   const startCall = () => {
+    playDTMFTone('dial');
     setCallState('calling');
     setCurrentStep(1);
     setSelectedResponse(null);
@@ -82,7 +170,9 @@ export const IVRSimulator: React.FC = () => {
   };
 
   const endCall = () => {
-    if (synthRef.current) synthRef.current.cancel();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
     setIsPlayingAudio(false);
     setCallState('ended');
     setTimeout(() => {
@@ -91,33 +181,63 @@ export const IVRSimulator: React.FC = () => {
   };
 
   const handleSelectOption = (key: string, label: string) => {
+    playDTMFTone(key);
     setSelectedResponse(`Keypad Pressed [${key}] : ${label}`);
     setCoinsEarned(true);
 
-    const confirmationText = callLang === 'mr'
-      ? "धन्यवाद मनीषाजी! तुमचा स्वयंरोजगार मासिक उत्पन्न तेवीस हजार पाचशे रुपये गडचिरोली जिल्हा ट्रॅकरमध्ये यशस्वीरित्या नोंदवला गेला आहे. तुम्हाला पन्नास स्किल कॉइन्स मिळाले आहेत."
-      : "धन्यवाद मनीषाजी! आपका स्वरोजगार रिकॉर्ड तेईस हजार पांच सौ रुपये सफलतापूर्वक दर्ज कर लिया गया है।";
+    const devanagariConfirmation = callLang === 'mr'
+      ? (key === '1' 
+          ? "धन्यवाद मनीषाजी! तुमचा स्वयंरोजगार मासिक उत्पन्न तेवीस हजार पाचशे रुपये गडचिरोली जिल्हा ट्रॅकरमध्ये यशस्वीरित्या नोंदवला गेला आहे. तुम्हाला पन्नास स्किल कॉइन्स मिळाले आहेत."
+          : key === '2'
+          ? "धन्यवाद मनीषाजी! तुमची कंपनी नोकरी यशस्वीरित्या नोंदवली गेली आहे. तुम्हाला पन्नास स्किल कॉइन्स मिळाले आहेत."
+          : "धन्यवाद मनीषाजी! तुमची नोंदणी झाली आहे. महाविकास रोजगार केंद्र लवकरच नवीन संधीसाठी संपर्क करेल.")
+      : (key === '1'
+          ? "धन्यवाद मनीषाजी! आपका स्वरोजगार रिकॉर्ड तेईस हजार पांच सौ रुपये गडचिरोली जिला पोर्टल में दर्ज कर लिया गया है। आपको पचास स्किल कॉइन्स मिले हैं।"
+          : key === '2'
+          ? "धन्यवाद मनीषाजी! आपकी कंपनी नौकरी सफलतापूर्वक दर्ज कर ली गई है। आपको पचास स्किल कॉइन्स मिले हैं।"
+          : "धन्यवाद मनीषाजी! आपका अनुरोध दर्ज कर लिया गया है। रोजगार केंद्र जल्द ही संपर्क करेगा।");
+
+    const phoneticConfirmation = callLang === 'mr'
+      ? (key === '1'
+          ? "Dhanyavaad Manishaji! Tumcha swayam-rojgaar maasik utpanna tevees hajaar paashshe rupaye Gadchiroli jilhaa tracker madhye nondavlaa gelaa aahe. Tumhaala pannaas skill coins milaale aahat."
+          : key === '2'
+          ? "Dhanyavaad Manishaji! Tumchi company nokree Gadchiroli DSDC tracker madhye nondavli geli aahe. Tumhaala pannaas skill coins milaale aahat."
+          : "Dhanyavaad Manishaji! Tumchi nodni zhaali aahe. Mahavikas Rojgar Kendra tumhala lakarach navya sandhi sathi sampark karel.")
+      : (key === '1'
+          ? "Dhanyavaad Manishaji! Aapka swarojgaar record te-ees hazaar paanch sau rupaye Gadchiroli zila portal mein darj kar liya gaya hai. Aapko pachaas skill coins mile hain."
+          : key === '2'
+          ? "Dhanyavaad Manishaji! Aapki company naukree portal mein darj ho gayi hai. Aapko pachaas skill coins mile hain."
+          : "Dhanyavaad Manishaji! Aapka anurodh darj kar liya gaya hai. Rojgar kendra jald hi aapse sampark karega.");
 
     setTimeout(() => {
       setCurrentStep(2);
-      speakPrompt(confirmationText, callLang);
-    }, 800);
+      speakPrompt(devanagariConfirmation, phoneticConfirmation, callLang);
+    }, 600);
   };
 
   const toggleSpeechAudio = () => {
-    if (!synthRef.current) return;
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     if (isPlayingAudio) {
-      synthRef.current.cancel();
+      window.speechSynthesis.cancel();
       setIsPlayingAudio(false);
     } else {
-      const textToSpeak = currentStep === 1
+      const devanagariText = currentStep === 1
         ? (callLang === 'mr'
-            ? "नमस्कार मनीषाजी! कौशल्य विकास विभागाकडून हा कॉल आहे. बचत गटामध्ये किंवा स्वयंरोजगारासाठी १ दाबा, नोकरीसाठी २ दाबा, काम शोधत असल्यास ३ दाबा."
-            : "नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। स्वरोजगार के लिए 1 दबाएं, नौकरी के लिए 2 दबाएं।")
+            ? "नमस्कार मनीषाजी! कौशल्य विकास विभागाकडून हा कॉल आहे. बचत गटामध्ये किंवा स्वयंरोजगारासाठी एक दाबा. नोकरीसाठी दोन दाबा. काम शोधत असल्यास तीन दाबा."
+            : "नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। स्वरोजगार के लिए एक दबाएं। नौकरी के लिए दो दबाएं। काम की तलाश में हैं तो तीन दबाएं।")
         : (callLang === 'mr'
-            ? "धन्यवाद! तुमचा स्वयंरोजगार नोंदवला गेला आहे."
-            : "धन्यवाद! आपका स्वरोजगार दर्ज हो गया है।");
-      speakPrompt(textToSpeak, callLang);
+            ? "धन्यवाद मनीषाजी! तुमचा स्वयंरोजगार यशस्वीरित्या नोंदवला गेला आहे."
+            : "धन्यवाद मनीषाजी! आपका स्वरोजगार सफलतापूर्वक दर्ज हो गया है।");
+
+      const phoneticText = currentStep === 1
+        ? (callLang === 'mr'
+            ? "Namaskaar Manishaji! Maharashtra Kaushalya Vikas Vibhaaga kadun ha call aahe. Bachat gat kinva swayam-rojgaarasathi ek daba. Companyt nokreesathi don daba. Kaam shodhat aaslyas teen daba."
+            : "Namaste Manishaji! Maharashtra Kaushal Vikas Vibhag ki or se yeh call hai. Swayam sahayata samooh ya swarojgaar ke liye ek dabayein. Company mein naukree ke liye do dabayein. Kaam ki talaash mein hain toh teen dabayein.")
+        : (callLang === 'mr'
+            ? "Dhanyavaad Manishaji! Tumcha swayam-rojgaar record nondavlaa gelaa aahe."
+            : "Dhanyavaad Manishaji! Aapka swarojgaar record darj ho gaya hai.");
+
+      speakPrompt(devanagariText, phoneticText, callLang);
     }
   };
 

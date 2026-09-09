@@ -106,16 +106,19 @@ export const VerifiableBadgeModal: React.FC<VerifiableBadgeModalProps> = ({
           {/* QR Code & Cryptographic Ledger Proof */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
             {/* QR Visual */}
-            <div className="sm:col-span-4 bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
-              <div className="w-24 h-24 bg-white p-2 rounded-xl flex items-center justify-center shadow-inner">
-                {/* SVG Mock High-Density QR Vector */}
-                <svg className="w-full h-full text-slate-900" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14-2h4v2h-4v-2zm-4 0h2v4h-2v-4zm2 4h4v4h-2v-2h-2v-2zm4 2h2v2h-2v-2zm-6 2h2v2h-2v-2zm-8-9h2v2H6V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9zm0 4h2v2h-2v-2zm-4 4h2v2h-2v-2z" />
-                </svg>
+            <div className="sm:col-span-4 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
+              <div className="w-28 h-28 bg-white p-1.5 rounded-xl flex items-center justify-center shadow-inner overflow-hidden">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                    `https://verify.mahaswayam.gov.in/credential/${trainee.pseudonymizedToken || 'MSIS-8821'}`
+                  )}&color=0f172a&bgcolor=ffffff&qzone=1`}
+                  alt="W3C Verifiable Credential QR"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="text-[10px] text-slate-400 font-mono mt-2 flex items-center gap-1">
                 <Lock className="w-3 h-3 text-orange-400" />
-                <span>SHA-256 Seal</span>
+                <span>SHA-256 Merkle Seal</span>
               </span>
             </div>
 

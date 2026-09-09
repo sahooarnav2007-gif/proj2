@@ -85,18 +85,23 @@ export const LiveMobileDemoModal: React.FC<LiveMobileDemoModalProps> = ({
           
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 items-center">
             
-            {/* Real QR Code Vector Representation */}
+            {/* Real Scannable QR Code */}
             <div className="sm:col-span-5 bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
-              <div className="w-36 h-36 bg-white p-2.5 rounded-2xl flex items-center justify-center shadow-lg">
-                <svg className="w-full h-full text-slate-900" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm14-2h4v2h-4v-2zm-4 0h2v4h-2v-4zm2 4h4v4h-2v-2h-2v-2zm4 2h2v2h-2v-2zm-6 2h2v2h-2v-2zm-8-9h2v2H6V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9zm0 4h2v2h-2v-2zm-4 4h2v2h-2v-2z" />
-                </svg>
+              <div className="w-40 h-40 bg-white p-2 rounded-2xl flex items-center justify-center shadow-lg border border-slate-200 overflow-hidden">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
+                    typeof window !== 'undefined' ? window.location.origin + '?role=simulators&demo=mobile' : 'https://github.com/sahooarnav2007-gif/proj2'
+                  )}&color=0f172a&bgcolor=ffffff&qzone=1`}
+                  alt="Scannable Live QR Code"
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <span className="text-[11px] text-orange-400 font-mono font-bold mt-2">
-                SCAN WITH PHONE CAMERA
+              <span className="text-[11px] text-orange-400 font-mono font-bold mt-2.5 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin-slow" />
+                <span>SCAN WITH PHONE CAMERA</span>
               </span>
-              <p className="text-[10px] text-slate-500 mt-0.5">
-                Opens candidate Swapnil Patil's WhatsApp response bot
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-tight">
+                Points phone camera or Google Lens to open mobile demo
               </p>
             </div>
 

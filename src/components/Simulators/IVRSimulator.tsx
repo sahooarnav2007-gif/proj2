@@ -276,7 +276,9 @@ export const IVRSimulator: React.FC = () => {
             <button
               onClick={() => {
                 setCallLang('mr');
-                if (synthRef.current) synthRef.current.cancel();
+                if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                  window.speechSynthesis.cancel();
+                }
               }}
               className={`px-3 py-1 rounded-lg font-bold transition ${
                 callLang === 'mr' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
@@ -287,7 +289,9 @@ export const IVRSimulator: React.FC = () => {
             <button
               onClick={() => {
                 setCallLang('hi');
-                if (synthRef.current) synthRef.current.cancel();
+                if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                  window.speechSynthesis.cancel();
+                }
               }}
               className={`px-3 py-1 rounded-lg font-bold transition ${
                 callLang === 'hi' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'

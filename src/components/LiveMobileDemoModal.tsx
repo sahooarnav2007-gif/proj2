@@ -90,7 +90,11 @@ export const LiveMobileDemoModal: React.FC<LiveMobileDemoModalProps> = ({
               <div className="w-40 h-40 bg-white p-2 rounded-2xl flex items-center justify-center shadow-lg border border-slate-200 overflow-hidden">
                 <img
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
-                    typeof window !== 'undefined' ? window.location.origin + '?role=simulators&demo=mobile' : 'https://github.com/sahooarnav2007-gif/proj2'
+                    typeof window !== 'undefined'
+                      ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                          ? `${window.location.protocol}//192.168.1.7:${window.location.port || '3000'}?role=simulators&demo=mobile`
+                          : `${window.location.origin}?role=simulators&demo=mobile`)
+                      : 'https://github.com/sahooarnav2007-gif/proj2'
                   )}&color=0f172a&bgcolor=ffffff&qzone=1`}
                   alt="Scannable Live QR Code"
                   className="w-full h-full object-contain"

@@ -165,6 +165,7 @@ export default function Home() {
               setCurrentRole('training_provider');
             }}
             onOpenAIStudio={() => setShowAIStudioView(true)}
+            onOpenExportReport={() => setIsExportModalOpen(true)}
           />
         )}
 

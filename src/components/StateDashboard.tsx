@@ -20,7 +20,8 @@ import {
   Map,
   Table as TableIcon,
   Zap,
-  X
+  X,
+  FileText
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -44,6 +45,7 @@ interface StateDashboardProps {
   onSelectDistrict?: (districtName: string) => void;
   onSelectTP?: (tpId: string) => void;
   onOpenAIStudio?: () => void;
+  onOpenExportReport?: () => void;
 }
 
 export const StateDashboard: React.FC<StateDashboardProps> = ({
@@ -53,7 +55,8 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   sectors,
   onSelectDistrict,
   onSelectTP,
-  onOpenAIStudio
+  onOpenAIStudio,
+  onOpenExportReport
 }) => {
   const t = translations[currentLanguage];
 
@@ -138,6 +141,15 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              {onOpenExportReport && (
+                <button
+                  onClick={onOpenExportReport}
+                  className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-700 shadow-md transition hover:scale-105 active:scale-95"
+                >
+                  <FileText className="w-4 h-4 text-orange-400" />
+                  <span>Cabinet ROI Memo PDF</span>
+                </button>
+              )}
               <button
                 onClick={() => setIsStressTestOpen(true)}
                 className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-purple-600/20 transition hover:scale-105 active:scale-95"

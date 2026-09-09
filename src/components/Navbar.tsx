@@ -26,6 +26,7 @@ interface NavbarProps {
   currentLanguage: Language;
   setCurrentLanguage: (lang: Language) => void;
   onOpenExportModal: () => void;
+  onOpenLiveMobileQR?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -33,7 +34,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   setCurrentRole,
   currentLanguage,
   setCurrentLanguage,
-  onOpenExportModal
+  onOpenExportModal,
+  onOpenLiveMobileQR
 }) => {
   const t = translations[currentLanguage];
   const [fontSizeScale, setFontSizeScale] = useState<'normal' | 'large' | 'larger'>('normal');
@@ -161,11 +163,23 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Right Action: Legislative & DSDC Audit Export Dossier */}
+          {/* Right Actions: Live Phone QR Demo & Legislative DSDC Audit Export Dossier */}
           <div className="flex items-center gap-2">
+            {onOpenLiveMobileQR && (
+              <button
+                onClick={onOpenLiveMobileQR}
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95"
+                title="Let judges scan QR code with their phone to test live real-time sync"
+              >
+                <Smartphone className="w-4 h-4 text-white animate-bounce" />
+                <span className="hidden sm:inline">📱 Scan-on-Phone Live QR Demo</span>
+                <span className="sm:hidden">Live QR</span>
+              </button>
+            )}
+
             <button
               onClick={onOpenExportModal}
-              className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-orange-600 dark:hover:bg-orange-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all active:scale-95 border border-slate-700"
+              className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all active:scale-95 border border-slate-700"
               title="Download official state legislative compliance dossier in CSV/PDF format"
             >
               <FileDown className="w-4 h-4 text-orange-400 dark:text-white" />

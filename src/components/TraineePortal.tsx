@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Trainee, Language } from '@/types';
 import { formatINR } from '@/lib/utils';
+import { VerifiableBadgeModal } from '@/components/VerifiableBadgeModal';
 import { 
   Coins, 
   ShieldCheck, 
@@ -11,7 +12,9 @@ import {
   PlusCircle, 
   CheckCircle2, 
   Sparkles, 
-  Smartphone
+  Smartphone,
+  Award,
+  QrCode
 } from 'lucide-react';
 
 interface TraineePortalProps {
@@ -29,6 +32,7 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
   onOpenSimulators
 }) => {
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
+  const [showVerifiableBadgeModal, setShowVerifiableBadgeModal] = useState<boolean>(false);
   const [newMonth, setNewMonth] = useState<number>(24);
   const [newSalary, setNewSalary] = useState<number>(trainee.currentSalary + 5000);
   const [newDesignation, setNewDesignation] = useState<string>(trainee.currentDesignation || '');
@@ -126,6 +130,14 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
           >
             <PlusCircle className="w-4 h-4" />
             <span>Report Salary Hike / Job Transition</span>
+          </button>
+
+          <button
+            onClick={() => setShowVerifiableBadgeModal(true)}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg transition"
+          >
+            <Award className="w-4 h-4 text-amber-300" />
+            <span>W3C DigiLocker Verifiable Credential</span>
           </button>
 
           <button
@@ -414,6 +426,13 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
           </div>
         </div>
       )}
+
+      {/* W3C Cryptographic DigiLocker Badge Modal */}
+      <VerifiableBadgeModal
+        trainee={trainee}
+        isOpen={showVerifiableBadgeModal}
+        onClose={() => setShowVerifiableBadgeModal(false)}
+      />
     </div>
   );
 };

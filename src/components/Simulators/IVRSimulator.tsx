@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   PhoneCall, 
   PhoneOff, 
   Volume2, 
-  VolumeX
+  VolumeX,
+  Play,
+  Pause,
+  Sparkles,
+  Award
 } from 'lucide-react';
 
 export const IVRSimulator: React.FC = () => {
@@ -15,6 +19,33 @@ export const IVRSimulator: React.FC = () => {
   const [selectedResponse, setSelectedResponse] = useState<string | null>(null);
   const [audioTimer, setAudioTimer] = useState<number>(0);
   const [callLang, setCallLang] = useState<'mr' | 'hi'>('mr');
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
+  const [coinsEarned, setCoinsEarned] = useState<boolean>(false);
+
+  // Audio Speech Synthesis
+  const synthRef = useRef<SpeechSynthesis | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      synthRef.current = window.speechSynthesis;
+    }
+  }, []);
+
+  const speakPrompt = (text: string, lang: 'mr' | 'hi') => {
+    if (!synthRef.current || isMuted) return;
+    synthRef.current.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === 'mr' ? 'mr-IN' : 'hi-IN';
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => setIsPlayingAudio(true);
+    utterance.onend = () => setIsPlayingAudio(false);
+    utterance.onerror = () => setIsPlayingAudio(false);
+
+    synthRef.current.speak(utterance);
+  };
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -22,22 +53,37 @@ export const IVRSimulator: React.FC = () => {
       interval = setInterval(() => {
         setAudioTimer(prev => prev + 1);
       }, 1000);
-      return () => clearInterval(interval);
+
+      // Auto-trigger voice synthesis when connected
+      const promptText = callLang === 'mr'
+        ? "नमस्कार मनीषाजी! कौशल्य विकास विभागाकडून हा कॉल आहे. औषधी वनस्पती प्रक्रिया प्रशिक्षणानंतर तुम्ही सध्या काम करत आहात का? बचत गटामध्ये किंवा स्वयंरोजगारासाठी एक दाबा. कंपनीत नोकरीसाठी दोन दाबा. काम शोधत असल्यास तीन दाबा."
+        : "नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। जड़ी-बूटी प्रसंस्करण प्रशिक्षण के बाद क्या आप कार्यरत हैं? स्वरोजगार के लिए एक दबाएं। नौकरी के लिए दो दबाएं।";
+      
+      speakPrompt(promptText, callLang);
+
+      return () => {
+        clearInterval(interval);
+        if (synthRef.current) synthRef.current.cancel();
+      };
     } else {
       setAudioTimer(0);
+      setIsPlayingAudio(false);
     }
-  }, [callState]);
+  }, [callState, callLang]);
 
   const startCall = () => {
     setCallState('calling');
     setCurrentStep(1);
     setSelectedResponse(null);
+    setCoinsEarned(false);
     setTimeout(() => {
       setCallState('connected');
-    }, 1500);
+    }, 1400);
   };
 
   const endCall = () => {
+    if (synthRef.current) synthRef.current.cancel();
+    setIsPlayingAudio(false);
     setCallState('ended');
     setTimeout(() => {
       setCallState('idle');
@@ -45,10 +91,34 @@ export const IVRSimulator: React.FC = () => {
   };
 
   const handleSelectOption = (key: string, label: string) => {
-    setSelectedResponse(`Pressed [${key}] : ${label}`);
+    setSelectedResponse(`Keypad Pressed [${key}] : ${label}`);
+    setCoinsEarned(true);
+
+    const confirmationText = callLang === 'mr'
+      ? "धन्यवाद मनीषाजी! तुमचा स्वयंरोजगार मासिक उत्पन्न तेवीस हजार पाचशे रुपये गडचिरोली जिल्हा ट्रॅकरमध्ये यशस्वीरित्या नोंदवला गेला आहे. तुम्हाला पन्नास स्किल कॉइन्स मिळाले आहेत."
+      : "धन्यवाद मनीषाजी! आपका स्वरोजगार रिकॉर्ड तेईस हजार पांच सौ रुपये सफलतापूर्वक दर्ज कर लिया गया है।";
+
     setTimeout(() => {
       setCurrentStep(2);
-    }, 1000);
+      speakPrompt(confirmationText, callLang);
+    }, 800);
+  };
+
+  const toggleSpeechAudio = () => {
+    if (!synthRef.current) return;
+    if (isPlayingAudio) {
+      synthRef.current.cancel();
+      setIsPlayingAudio(false);
+    } else {
+      const textToSpeak = currentStep === 1
+        ? (callLang === 'mr'
+            ? "नमस्कार मनीषाजी! कौशल्य विकास विभागाकडून हा कॉल आहे. बचत गटामध्ये किंवा स्वयंरोजगारासाठी १ दाबा, नोकरीसाठी २ दाबा, काम शोधत असल्यास ३ दाबा."
+            : "नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। स्वरोजगार के लिए 1 दबाएं, नौकरी के लिए 2 दबाएं।")
+        : (callLang === 'mr'
+            ? "धन्यवाद! तुमचा स्वयंरोजगार नोंदवला गेला आहे."
+            : "धन्यवाद! आपका स्वरोजगार दर्ज हो गया है।");
+      speakPrompt(textToSpeak, callLang);
+    }
   };
 
   const formatSeconds = (sec: number) => {
@@ -62,32 +132,45 @@ export const IVRSimulator: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <PhoneCall className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              AI Interactive Voice Response (IVR) Simulator
-            </h3>
+            <span className="p-2 bg-orange-100 dark:bg-orange-950/60 rounded-xl text-orange-600 dark:text-orange-400">
+              <PhoneCall className="w-5 h-5" />
+            </span>
+            <div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>AI Interactive Voice Response (IVR) Agent</span>
+                <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-full">
+                  Live Web Audio Synthesizer
+                </span>
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Automated vernacular voice calls for rural 2G keypad phones across Gadchiroli, Nandurbar, and Solapur.
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Designed for rural trainees with basic feature phones (2G/3G) in Gadchiroli, Nandurbar, and Solapur districts.
-          </p>
         </div>
 
-        {/* Call Language Switcher */}
+        {/* Dialect Switcher */}
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-slate-500">Voice Dialect:</span>
-          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
             <button
-              onClick={() => setCallLang('mr')}
-              className={`px-2.5 py-1 rounded font-bold transition ${
-                callLang === 'mr' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
+              onClick={() => {
+                setCallLang('mr');
+                if (synthRef.current) synthRef.current.cancel();
+              }}
+              className={`px-3 py-1 rounded-lg font-bold transition ${
+                callLang === 'mr' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
               }`}
             >
               मराठी (Marathi)
             </button>
             <button
-              onClick={() => setCallLang('hi')}
-              className={`px-2.5 py-1 rounded font-bold transition ${
-                callLang === 'hi' ? 'bg-indigo-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
+              onClick={() => {
+                setCallLang('hi');
+                if (synthRef.current) synthRef.current.cancel();
+              }}
+              className={`px-3 py-1 rounded-lg font-bold transition ${
+                callLang === 'hi' ? 'bg-orange-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400'
               }`}
             >
               हिंदी (Hindi)
@@ -97,62 +180,99 @@ export const IVRSimulator: React.FC = () => {
       </div>
 
       {/* Interactive Phone Call Screen */}
-      <div className="max-w-md mx-auto bg-slate-900 rounded-3xl p-6 text-white shadow-2xl border-4 border-slate-800 flex flex-col items-center justify-between min-h-[520px]">
+      <div className="max-w-md mx-auto bg-slate-950 rounded-3xl p-6 text-white shadow-2xl border-4 border-slate-800 flex flex-col items-center justify-between min-h-[530px] relative overflow-hidden">
+        {/* Glow */}
+        <div className="absolute top-0 right-0 w-48 h-48 bg-orange-600/15 rounded-full blur-2xl pointer-events-none"></div>
+
         {/* Top Calling Status */}
-        <div className="text-center w-full">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 mx-auto flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-indigo-500/30 mb-3">
+        <div className="text-center w-full z-10">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-orange-500 to-amber-600 mx-auto flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-orange-500/30 mb-3 animate-pulse">
             🎙️
           </div>
-          <h4 className="text-lg font-bold text-slate-100">
-            {callLang === 'mr' ? 'महाराष्ट्र कौशल्य ऑटो-कॉल' : 'महाराष्ट्र कौशल ऑटो-कॉल'}
+          <h4 className="text-lg font-black text-slate-100">
+            {callLang === 'mr' ? 'महाराष्ट्र कौशल्य AI व्हॉईस एजंट' : 'महाराष्ट्र कौशल AI वॉइस एजेंट'}
           </h4>
-          <p className="text-xs text-indigo-400 font-mono">
+          <p className="text-xs text-orange-400 font-mono mt-0.5">
             {callState === 'idle' ? 'Trainee: Manisha Madavi (+91 93708 66201)' :
-             callState === 'calling' ? 'Connecting to Gadchiroli...' :
-             callState === 'connected' ? `In Call (${formatSeconds(audioTimer)})` : 'Call Finished'}
+             callState === 'calling' ? 'Connecting to Gadchiroli BSNL Cellular Node...' :
+             callState === 'connected' ? `Live Call (${formatSeconds(audioTimer)})` : 'Call Completed'}
           </p>
         </div>
 
-        {/* Audio Waveform Simulator */}
+        {/* Audio Waveform Equalizer & Live Speech Engine */}
         {callState === 'connected' && (
-          <div className="w-full my-4 bg-slate-800/80 p-4 rounded-2xl border border-slate-700 space-y-3">
-            <div className="flex items-center justify-center gap-1.5 h-8">
-              {[40, 75, 100, 60, 30, 90, 80, 45, 95, 70, 50, 85].map((h, i) => (
+          <div className="w-full my-4 bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-3 z-10">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <span className={`w-2 h-2 rounded-full ${isPlayingAudio ? 'bg-emerald-400 animate-ping' : 'bg-slate-600'}`}></span>
+                {isPlayingAudio ? 'Speaking in Vernacular...' : 'Audio Stream Active'}
+              </span>
+
+              <button
+                onClick={toggleSpeechAudio}
+                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-orange-400 rounded-lg text-[11px] font-bold flex items-center gap-1 transition"
+              >
+                {isPlayingAudio ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                <span>{isPlayingAudio ? 'Mute Speech' : 'Play Speech'}</span>
+              </button>
+            </div>
+
+            {/* Equalizer Frequency Bars */}
+            <div className="flex items-center justify-center gap-1.5 h-9 bg-slate-950/80 p-2 rounded-xl border border-slate-800">
+              {[40, 85, 100, 60, 30, 95, 80, 45, 90, 70, 50, 85, 65, 95, 40].map((h, i) => (
                 <div
                   key={i}
-                  className="w-1.5 bg-indigo-500 rounded-full animate-pulse"
-                  style={{ height: `${h}%`, animationDelay: `${i * 0.1}s` }}
+                  className={`w-1.5 rounded-full transition-all duration-150 ${
+                    isPlayingAudio ? 'bg-orange-500 animate-pulse' : 'bg-slate-700'
+                  }`}
+                  style={{
+                    height: isPlayingAudio ? `${h}%` : '20%',
+                    animationDelay: `${i * 0.08}s`
+                  }}
                 ></div>
               ))}
             </div>
 
             {/* Bilingual Voice Transcript */}
-            <div className="text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed text-indigo-200">
+            <div className="text-xs bg-slate-950/90 p-3.5 rounded-xl border border-slate-800 leading-relaxed text-slate-200">
               {currentStep === 1 ? (
                 callLang === 'mr' ? (
                   <p>
                     🔊 <strong>AI ऑपरेटर:</strong> &ldquo;नमस्कार मनीषाजी! कौशल्य विकास विभागाकडून हा कॉल आहे. औषधी वनस्पती प्रक्रिया प्रशिक्षणानंतर तुम्ही सध्या काम करत आहात का? <br/>
-                    <strong>१ दाबा:</strong> बचत गटामध्ये / स्वयंरोजगार <br/>
-                    <strong>२ दाबा:</strong> कंपनीत नोकरी <br/>
-                    <strong>३ दाबा:</strong> काम शोधत आहे&rdquo;
+                    <strong className="text-orange-400">१ दाबा:</strong> बचत गटामध्ये / स्वयंरोजगार <br/>
+                    <strong className="text-orange-400">२ दाबा:</strong> कंपनीत नोकरी <br/>
+                    <strong className="text-orange-400">३ दाबा:</strong> काम शोधत आहे&rdquo;
                   </p>
                 ) : (
                   <p>
-                    🔊 <strong>AI ऑपरेटर:</strong> &ldquo;नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। जड़ी-बूटी प्रसंस्करण प्रशिक्षण के बाद क्या आप वर्तमान में कार्यरत हैं? <br/>
-                    <strong>1 दबाएं:</strong> स्वयं सहायता समूह / स्वरोजगार <br/>
-                    <strong>2 दबाएं:</strong> निजी कंपनी में नौकरी <br/>
-                    <strong>3 दबाएं:</strong> काम की तलाश में&rdquo;
+                    🔊 <strong>AI ऑपरेटर:</strong> &ldquo;नमस्ते मनीषाजी! कौशल विकास विभाग की ओर से यह कॉल है। जड़ी-बूटी प्रसंस्करण प्रशिक्षण के बाद क्या आप कार्यरत हैं? <br/>
+                    <strong className="text-orange-400">1 दबाएं:</strong> स्वयं सहायता समूह / स्वरोजगार <br/>
+                    <strong className="text-orange-400">2 दबाएं:</strong> कंपनी में नौकरी <br/>
+                    <strong className="text-orange-400">3 दबाएं:</strong> काम की तलाश में&rdquo;
                   </p>
                 )
               ) : (
-                <p className="text-emerald-300">
-                  🔊 <strong>AI ऑपरेटर:</strong> {callLang === 'mr' ? 'धन्यवाद! तुमचा स्वयंरोजगार (मासिक उत्पन्न: ₹23,500) गडचिरोली जिल्हा ट्रॅकरमध्ये यशस्वीरित्या नोंदवला गेला आहे.' : 'धन्यवाद! आपका स्वरोजगार रिकॉर्ड (मासिक आय: ₹23,500) सफलतापूर्वक दर्ज कर लिया गया है।'}
-                </p>
+                <div className="space-y-2">
+                  <p className="text-emerald-300 font-medium">
+                    🔊 <strong>AI ऑपरेटर:</strong> {callLang === 'mr' 
+                      ? 'धन्यवाद! तुमचा स्वयंरोजगार (मासिक उत्पन्न: ₹23,500) गडचिरोली जिल्हा ट्रॅकरमध्ये यशस्वीरित्या नोंदवला गेला आहे.' 
+                      : 'धन्यवाद! आपका स्वरोजगार रिकॉर्ड (मासिक आय: ₹23,500) सफलतापूर्वक दर्ज कर लिया गया है।'}
+                  </p>
+                  {coinsEarned && (
+                    <div className="bg-emerald-950/80 border border-emerald-800 p-2 rounded-lg text-emerald-400 text-[11px] font-bold flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Telemetry Synced with DSDC Portal</span>
+                      </span>
+                      <span className="text-amber-300 font-mono">+50 SkillCoins</span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 
             {selectedResponse && (
-              <div className="text-[11px] text-amber-300 font-mono text-center">
+              <div className="text-[11px] text-amber-300 font-mono text-center bg-slate-950 p-1.5 rounded-lg border border-slate-800">
                 {selectedResponse}
               </div>
             )}
@@ -161,62 +281,68 @@ export const IVRSimulator: React.FC = () => {
 
         {/* Dialpad Interactive Options */}
         {callState === 'connected' && currentStep === 1 && (
-          <div className="grid grid-cols-3 gap-2 w-full my-2">
+          <div className="grid grid-cols-3 gap-2 w-full my-2 z-10">
             <button
               onClick={() => handleSelectOption('1', 'Self-Employed / SHG')}
-              className="bg-slate-800 hover:bg-indigo-600 text-white font-bold p-3 rounded-xl border border-slate-700 transition flex flex-col items-center"
+              className="bg-slate-900 hover:bg-orange-600 text-white font-bold p-3 rounded-xl border border-slate-800 hover:border-orange-500 transition flex flex-col items-center group shadow-md"
             >
-              <span className="text-base">1</span>
-              <span className="text-[10px] text-slate-300">स्वयंरोजगार</span>
+              <span className="text-base group-hover:scale-110 transition">1</span>
+              <span className="text-[10px] text-slate-400 group-hover:text-white">स्वयंरोजगार</span>
             </button>
             <button
               onClick={() => handleSelectOption('2', 'Company Job')}
-              className="bg-slate-800 hover:bg-indigo-600 text-white font-bold p-3 rounded-xl border border-slate-700 transition flex flex-col items-center"
+              className="bg-slate-900 hover:bg-orange-600 text-white font-bold p-3 rounded-xl border border-slate-800 hover:border-orange-500 transition flex flex-col items-center group shadow-md"
             >
-              <span className="text-base">2</span>
-              <span className="text-[10px] text-slate-300">नोकरी</span>
+              <span className="text-base group-hover:scale-110 transition">2</span>
+              <span className="text-[10px] text-slate-400 group-hover:text-white">नोकरी</span>
             </button>
             <button
               onClick={() => handleSelectOption('3', 'Job Seeking')}
-              className="bg-slate-800 hover:bg-indigo-600 text-white font-bold p-3 rounded-xl border border-slate-700 transition flex flex-col items-center"
+              className="bg-slate-900 hover:bg-orange-600 text-white font-bold p-3 rounded-xl border border-slate-800 hover:border-orange-500 transition flex flex-col items-center group shadow-md"
             >
-              <span className="text-base">3</span>
-              <span className="text-[10px] text-slate-300">शोधत आहे</span>
+              <span className="text-base group-hover:scale-110 transition">3</span>
+              <span className="text-[10px] text-slate-400 group-hover:text-white">शोधत आहे</span>
             </button>
           </div>
         )}
 
         {/* Bottom Call Controls */}
-        <div className="flex items-center gap-6 mt-4">
+        <div className="flex items-center gap-6 mt-4 z-10">
           {callState === 'idle' ? (
             <button
               onClick={startCall}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-full flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition text-sm"
+              className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-full flex items-center gap-2 shadow-lg shadow-orange-600/30 transition text-sm hover:scale-105 active:scale-95"
             >
               <PhoneCall className="w-5 h-5" />
-              <span>Trigger Test IVR Call</span>
+              <span>Trigger Test IVR Call (With Audio)</span>
             </button>
           ) : callState === 'calling' ? (
-            <div className="text-xs text-indigo-400 animate-pulse">Dialing trainee phone...</div>
+            <div className="text-xs text-orange-400 animate-pulse flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-orange-400 animate-ping"></span>
+              <span>Dialing Gadchiroli BSNL Cellular Node...</span>
+            </div>
           ) : callState === 'connected' ? (
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setIsMuted(!isMuted)}
-                className={`p-3 rounded-full border ${isMuted ? 'bg-rose-600 border-rose-500' : 'bg-slate-800 border-slate-700'}`}
+                className={`p-3 rounded-full border transition ${
+                  isMuted ? 'bg-rose-600 border-rose-500 text-white' : 'bg-slate-800 border-slate-700 text-slate-300'
+                }`}
+                title={isMuted ? 'Unmute' : 'Mute'}
               >
                 {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
               </button>
 
               <button
                 onClick={endCall}
-                className="bg-rose-600 hover:bg-rose-700 text-white font-bold p-3.5 rounded-full shadow-lg shadow-rose-600/30 transition"
+                className="bg-rose-600 hover:bg-rose-700 text-white font-bold p-3.5 rounded-full shadow-lg shadow-rose-600/30 transition hover:scale-105 active:scale-95"
                 title="Hang Up"
               >
                 <PhoneOff className="w-6 h-6" />
               </button>
             </div>
           ) : (
-            <div className="text-xs text-slate-400">Call Ended</div>
+            <div className="text-xs text-slate-400">Call Ended Successfully</div>
           )}
         </div>
       </div>

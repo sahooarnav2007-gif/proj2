@@ -19,6 +19,7 @@ import { PredictiveAIStudio } from '@/components/PredictiveAIStudio';
 import { TraineeDetailModal } from '@/components/TraineeDetailModal';
 import { ExportReportModal } from '@/components/ExportReportModal';
 import { ConsentModal } from '@/components/ConsentModal';
+import { LiveMobileDemoModal } from '@/components/LiveMobileDemoModal';
 import { Footer } from '@/components/Footer';
 
 import { translations } from '@/lib/utils';
@@ -32,6 +33,7 @@ export default function Home() {
   const [trainees, setTrainees] = useState<Trainee[]>(MOCK_TRAINEES);
   const [selectedTrainee, setSelectedTrainee] = useState<Trainee | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
+  const [isLiveMobileQRModalOpen, setIsLiveMobileQRModalOpen] = useState<boolean>(false);
   const [showAIStudioView, setShowAIStudioView] = useState<boolean>(false);
   const [isConsentModalOpen, setIsConsentModalOpen] = useState<boolean>(false);
 
@@ -100,6 +102,7 @@ export default function Home() {
         currentLanguage={currentLanguage}
         setCurrentLanguage={setCurrentLanguage}
         onOpenExportModal={() => setIsExportModalOpen(true)}
+        onOpenLiveMobileQR={() => setIsLiveMobileQRModalOpen(true)}
       />
 
       {/* Main Container */}
@@ -232,6 +235,21 @@ export default function Home() {
               }
               return t;
             }));
+          }}
+        />
+      )}
+
+      {/* Live Mobile QR Interactive Demo Modal */}
+      {isLiveMobileQRModalOpen && (
+        <LiveMobileDemoModal
+          isOpen={isLiveMobileQRModalOpen}
+          onClose={() => setIsLiveMobileQRModalOpen(false)}
+          onSimulateLiveUpdate={(salary, status) => {
+            handleBotOutcomeSubmitted({
+              salary,
+              status,
+              channel: 'whatsapp_qr_demo'
+            });
           }}
         />
       )}

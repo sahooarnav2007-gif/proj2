@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Language, DistrictMetric, TrainingProviderMetric, SectorOutcome } from '@/types';
 import { translations, formatINR, formatPercent } from '@/lib/utils';
+import { MaharashtraGeoMap } from '@/components/MaharashtraGeoMap';
 import { 
   Users, 
   TrendingUp, 
@@ -14,7 +15,9 @@ import {
   ArrowUpRight, 
   DollarSign, 
   ChevronRight,
-  BarChart3
+  BarChart3,
+  Map,
+  Table as TableIcon
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -54,6 +57,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   const [selectedRegion, setSelectedRegion] = useState<string>('All');
   const [selectedTier, setSelectedTier] = useState<string>('All');
   const [searchDistrictQuery, setSearchDistrictQuery] = useState<string>('');
+  const [districtViewMode, setDistrictViewMode] = useState<'map' | 'table'>('map');
 
   // Aggregated statewide numbers
   const stateStats = useMemo(() => {
@@ -349,61 +353,115 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
         </div>
       </div>
 
-      {/* Maharashtra District Heatmap & Table */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-          <div>
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                Maharashtra District-Wise Longitudinal Performance Table
+      {/* Maharashtra District Geo-Spatial Map & Table */}
+      <div className="space-y-6">
+        {/* Toggle Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="p-2 bg-orange-100 dark:bg-orange-950/60 rounded-xl text-orange-600 dark:text-orange-400">
+              <MapPin className="w-5 h-5" />
+            </span>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Maharashtra 36-District Outcome Visualizer
               </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Switch between interactive GIS Geo-Spatial Vector Map and Tabular Analytics Roster.
+              </p>
             </div>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Compare skilling throughput, retention at 6M/12M/24M, average wage growth, and Udyam self-employment across all 36 districts.
-            </p>
           </div>
 
-          {/* Filters Bar */}
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              type="text"
-              placeholder="Search district..."
-              value={searchDistrictQuery}
-              onChange={(e) => setSearchDistrictQuery(e.target.value)}
-              className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-
-            <select
-              value={selectedRegion}
-              onChange={(e) => setSelectedRegion(e.target.value)}
-              className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-medium"
+          <div className="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs self-start sm:self-auto">
+            <button
+              onClick={() => setDistrictViewMode('map')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 ${
+                districtViewMode === 'map'
+                  ? 'bg-orange-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-white'
+              }`}
             >
-              <option value="All">All Regions (6)</option>
-              <option value="Konkan">Konkan</option>
-              <option value="Pune">Pune</option>
-              <option value="Nashik">Nashik</option>
-              <option value="Aurangabad">Aurangabad</option>
-              <option value="Nagpur">Nagpur</option>
-              <option value="Amravati">Amravati</option>
-            </select>
-
-            <select
-              value={selectedTier}
-              onChange={(e) => setSelectedTier(e.target.value)}
-              className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-medium"
+              <Map className="w-4 h-4" />
+              <span>Interactive GIS Map</span>
+            </button>
+            <button
+              onClick={() => setDistrictViewMode('table')}
+              className={`px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 ${
+                districtViewMode === 'table'
+                  ? 'bg-orange-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-white'
+              }`}
             >
-              <option value="All">All Tiers</option>
-              <option value="Tier 1">Tier 1</option>
-              <option value="Tier 2">Tier 2</option>
-              <option value="Tier 3">Tier 3</option>
-              <option value="Aspirational/Tribal">Aspirational / Tribal</option>
-            </select>
+              <TableIcon className="w-4 h-4" />
+              <span>Data Table View</span>
+            </button>
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
+        {/* GIS Map View */}
+        {districtViewMode === 'map' && (
+          <MaharashtraGeoMap
+            districts={districts}
+            onSelectDistrict={(districtName) => {
+              if (onSelectDistrict) onSelectDistrict(districtName);
+            }}
+          />
+        )}
+
+        {/* Tabular Analytics View */}
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+            <div>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                  Maharashtra District-Wise Longitudinal Performance Table
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Compare skilling throughput, retention at 6M/12M/24M, average wage growth, and Udyam self-employment across all 36 districts.
+              </p>
+            </div>
+
+            {/* Filters Bar */}
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                type="text"
+                placeholder="Search district..."
+                value={searchDistrictQuery}
+                onChange={(e) => setSearchDistrictQuery(e.target.value)}
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+
+              <select
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-medium"
+              >
+                <option value="All">All Regions (6)</option>
+                <option value="Konkan">Konkan</option>
+                <option value="Pune">Pune</option>
+                <option value="Nashik">Nashik</option>
+                <option value="Aurangabad">Aurangabad</option>
+                <option value="Nagpur">Nagpur</option>
+                <option value="Amravati">Amravati</option>
+              </select>
+
+              <select
+                value={selectedTier}
+                onChange={(e) => setSelectedTier(e.target.value)}
+                className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-medium"
+              >
+                <option value="All">All Tiers</option>
+                <option value="Tier 1">Tier 1</option>
+                <option value="Tier 2">Tier 2</option>
+                <option value="Tier 3">Tier 3</option>
+                <option value="Aspirational/Tribal">Aspirational / Tribal</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700 text-slate-500 font-semibold">
@@ -479,6 +537,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
           </table>
         </div>
       </div>
+    </div>
 
       {/* Training Provider ROI Leaderboard */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">

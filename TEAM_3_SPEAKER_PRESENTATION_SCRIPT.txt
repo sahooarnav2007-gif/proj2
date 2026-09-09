@@ -1,0 +1,155 @@
+================================================================================
+👑 SKILL SYNC — 3-SPEAKER PRESENTATION SCRIPT & TEAM LEADER MASTER PLAN
+Smart India Hackathon 2026 • Problem Statement: SIH26135
+Client: Government of Maharashtra (Maharashtra State Innovation Society - MSIS)
+Total Presentation Time: 7 to 8 Minutes + Q&A
+================================================================================
+
+--------------------------------------------------------------------------------
+TEAM ROLES & RESPONSIBILITY DIVISION:
+--------------------------------------------------------------------------------
+• SPEAKER 1 (TEAM LEADER - YOU):
+  - Role: The Visionary & Problem Definer
+  - Time: 2 Minutes
+  - Scope: The 60-Second Hook, Ground Reality of Maharashtra (Meet Swapnil), 
+    The 80% Data Black Hole, and High-Level Solution Introduction.
+
+• SPEAKER 2 (MEMBER 1 - PRODUCT & VERIFICATION SPECIALIST):
+  - Role: The Tech & Data Integrity Engineer
+  - Time: 2.5 Minutes
+  - Scope: Multi-Channel Follow-Up (WhatsApp Bot + Marathi AI Voice IVR), 
+    3-Way Signal Triangulation (EPFO/Udyam/Employer), DPDP 2023 Privacy Vault, 
+    and Live Demo of WhatsApp Re-Engagement.
+
+• SPEAKER 3 (MEMBER 2 - AI, ANALYTICS & STATE POLICY SPECIALIST):
+  - Role: The Data Scientist & Policy Strategist
+  - Time: 2.5 Minutes
+  - Scope: Predictive Attrition AI Model (Random Forest Drop-Out Prevention), 
+    NLP Curriculum Skill-Gap Mining, 36-District Impact (3.43L Trainees, 1.73x Wage 
+    Multiplier), and Final Government ROI Pitch.
+
+================================================================================
+SPEAKER 1: TEAM LEADER (YOUR SCRIPT) — TIME: 0:00 to 2:00
+================================================================================
+[SLIDE 1 & 2: TITLE & THE PROBLEM]
+
+"Respected Judges and Evaluators, good morning. 
+
+Every year, the Government of Maharashtra invests hundreds of crores to train lakhs 
+of youth through ITIs, PMKVA, and state skilling initiatives. Our current portals 
+capture enrollment, classroom attendance, and certification with great precision.
+
+BUT THE MOMENT A STUDENT GRADUATES, THE GOVERNMENT LOSES CONTACT WITH OVER 80% OF 
+THEM WITHIN 6 MONTHS. 
+
+Let me give you a real-world example. Meet Swapnil, a 20-year-old student from rural 
+Nashik who completed an ITI certification in EV maintenance and CNC machining. On 
+graduation day, the government marked him as 'successfully skilled'. 
+
+But within 3 months:
+1. Swapnil changed his SIM card and migrated to Pune for work. When government officials 
+   called his old phone number, it was switched off.
+2. The training institute claimed on paper that 90% of students were placed, but the state 
+   had zero proof of whether Swapnil was actually working or what salary he made.
+3. Swapnil faced long travel hours and night shifts on low pay. He had no counselor to turn 
+   to, got burned out, and silently quit his job.
+4. His factory manager noticed Swapnil lacked modern EV battery diagnostic skills, but had 
+   no easy channel to tell the state government in Mantralaya to update the curriculum.
+
+To eliminate this data black hole, our team built SKILL SYNC — an AI-powered longitudinal 
+outcome tracking and triangulation system for the Government of Maharashtra. 
+
+I will now hand over to my teammate [Name of Member 1] to walk you through our 
+multi-channel re-engagement and 3-way verification architecture."
+
+================================================================================
+SPEAKER 2: MEMBER 1 (TECH & VERIFICATION) — TIME: 2:00 to 4:30
+================================================================================
+[SLIDE 3, 4 & 5: RE-ENGAGEMENT, TRIANGULATION & DEMO]
+
+"Thank you, [Leader's Name].
+
+To ensure we never lose contact with trainees like Swapnil over a continuous 3-year 
+horizon, Skill Sync eliminates all app-download friction using two powerful channels:
+
+1. AUTOMATED WHATSAPP BOT (Marathi, Hindi, English):
+   Every 3, 6, 12, and 24 months, Swapnil receives an automated WhatsApp survey with 
+   interactive quick-reply buttons. He taps 'Promoted / Salary Hike', types his new 
+   salary of Rs 24,000, and submits it in 10 seconds. He earns SkillCoins reward points 
+   for keeping his records updated!
+
+2. MARATHI AI IVR VOICE AGENT FOR RURAL KEYPAD PHONES:
+   For rural and tribal districts like Gadchiroli and Nandurbar where trainees have basic 
+   2G phones with no internet, our automated voice agent calls them in Marathi. They answer 
+   simple keypad prompts (e.g. Press 1 for job, Press 2 for self-employed), which logs 
+   directly into our database.
+
+3. 3-WAY SIGNAL TRIANGULATION (Zero Fake Placements):
+   We never rely on self-reporting alone. We cross-verify every claim across 3 signals:
+   - Signal A: Trainee Self-Report (WhatsApp / Voice)
+   - Signal B: Employer 1-Click HRMS Verification (HR confirms role and salary in 1 click)
+   - Signal C: EPFO / UAN Provident Fund Proxy (for formal jobs) or Udyam MSME Registry 
+     (for self-employed micro-enterprises).
+   When all three signals match, the record achieves a 100% Triangulated Trust Index.
+
+4. 100% DPDP ACT 2023 COMPLIANCE:
+   Under Indian privacy laws, we never store raw Aadhaar numbers. All records use masked 
+   IDs (XXXXXXXX7821) and cryptographic tokens, giving citizens full rights to manage and 
+   revoke their tracking consent.
+
+I will now hand over to [Name of Member 2] to explain our Predictive AI engine and 
+state-wide policy impact."
+
+================================================================================
+SPEAKER 3: MEMBER 2 (AI, ANALYTICS & IMPACT) — TIME: 4:30 to 7:00
+================================================================================
+[SLIDE 6, 7 & 8: PREDICTIVE AI, NLP REFORM & STATE IMPACT]
+
+"Thank you, [Member 1's Name].
+
+Beyond just tracking historical data, Skill Sync uses artificial intelligence to 
+actively protect government investments:
+
+1. PREDICTIVE ATTRITION AI MODEL (Preventing Job Drop-Outs):
+   Using a Random Forest classifier, our AI analyzes 7 friction factors: salary, commute 
+   distance, night shifts, contract type, and course relevance. 
+   When the AI noticed Swapnil was traveling 35 km for a Rs 14,000 wage on night shifts, 
+   it calculated a 78% High Attrition Risk. 
+   Before Swapnil could quit, the system alerted his ITI counselor with specific actions: 
+   provide a transport allowance and schedule a counseling call. Swapnil stayed in his career!
+
+2. NLP TOPIC CLUSTERING FOR SYLLABUS UPGRADES:
+   Our Natural Language Processing engine analyzes feedback from employers across Pune, 
+   Nashik, and Aurangabad. It discovered over 300 automotive companies complaining about a 
+   lack of 'EV Battery BMS Diagnostics'. The AI automatically flags this to MSIS so the state 
+   can modernize the ITI curriculum with hands-on EV modules.
+
+3. STATEWIDE PROVEN IMPACT (Our Dataset):
+   - 3,43,750 Trainees tracked across all 36 Maharashtra districts.
+   - 91.0% Certification Rate.
+   - 71.6% Verified 6-Month Retention & 65.3% 12-Month Retention.
+   - 1.73x Average Wage Multiplier (starting stipend of Rs 14,500 growing to Rs 25,000+).
+   - 90.6% Triangulated Trust Index.
+   - 23.1% Self-Employment Rate in tribal and rural regions.
+
+CONCLUSION:
+Skill Sync transforms skilling governance in Maharashtra from a blind numbers game into an 
+intelligent, evidence-based livelihood engine. 
+
+Thank you, and we are now ready for your questions!"
+
+================================================================================
+QUICK REFERENCE: WHO ANSWERS WHICH QUESTION IN Q&A
+================================================================================
+• Questions on Project Vision, Problem Statement, Govt of Maharashtra, or General Architecture:
+  👉 SPEAKER 1 (Team Leader) answers!
+
+• Questions on WhatsApp Bot, IVR Voice calls, EPFO/Udyam Triangulation, Tech Stack, or DPDP Privacy:
+  👉 SPEAKER 2 (Member 1) answers!
+
+• Questions on AI Attrition Algorithm, NLP Skill-Gap Mining, 36-District Metrics, or Curriculum Upgrades:
+  👉 SPEAKER 3 (Member 2) answers!
+
+================================================================================
+FILE SAVED AT: C:\Users\HP\OneDrive\Documents\skill-sync\TEAM_3_SPEAKER_PRESENTATION_SCRIPT.txt
+================================================================================

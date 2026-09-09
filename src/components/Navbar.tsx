@@ -39,6 +39,34 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const t = translations[currentLanguage];
   const [fontSizeScale, setFontSizeScale] = useState<'normal' | 'large' | 'larger'>('normal');
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      const isDark = savedTheme === 'dark' || (!savedTheme && document.documentElement.classList.contains('dark'));
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        setIsDarkMode(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        setIsDarkMode(false);
+      }
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (typeof window === 'undefined') return;
+    if (document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      setIsDarkMode(true);
+    }
+  };
 
   const handleFontChange = (scale: 'normal' | 'large' | 'larger') => {
     setFontSizeScale(scale);
@@ -127,6 +155,16 @@ export const Navbar: React.FC<NavbarProps> = ({
               ))}
             </div>
 
+            {/* Top Bar Theme Switcher */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 rounded border border-slate-700 text-[11px] font-bold transition cursor-pointer"
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-blue-300" />}
+              <span className="hidden sm:inline">{isDarkMode ? "Light" : "Dark"}</span>
+            </button>
+
             {/* Hackathon Badge */}
             <div className="hidden lg:flex items-center gap-1.5 px-2 py-0.5 bg-orange-950/80 text-orange-300 border border-orange-700/50 rounded font-mono text-[10px]">
               <span>SIH-2026: PS SIH26135</span>
@@ -163,8 +201,28 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Right Actions: Live Phone QR Demo & Legislative DSDC Audit Export Dossier */}
+          {/* Right Actions: Live Phone QR Demo, Theme Toggle & Legislative DSDC Audit Export Dossier */}
           <div className="flex items-center gap-2">
+            {/* Prominent Dark/Light Switcher Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition shadow-xs cursor-pointer flex items-center gap-1.5 text-xs font-bold"
+              title={isDarkMode ? "Switch to Light Theme" : "Switch to Dark Theme"}
+              aria-label="Toggle Dark/Light Mode"
+            >
+              {isDarkMode ? (
+                <>
+                  <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />
+                  <span className="hidden md:inline text-amber-400">Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-4 h-4 text-slate-700 dark:text-slate-300" />
+                  <span className="hidden md:inline text-slate-700">Dark</span>
+                </>
+              )}
+            </button>
+
             {onOpenLiveMobileQR && (
               <button
                 onClick={onOpenLiveMobileQR}

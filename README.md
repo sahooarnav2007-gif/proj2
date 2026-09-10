@@ -183,8 +183,36 @@ Government skilling portals today capture enrollment, classroom attendance, asse
 
 - 📄 [`SIH_COMPLETE_MASTER_GUIDE.md`](./SIH_COMPLETE_MASTER_GUIDE.md) / [`.txt`](./SIH_COMPLETE_MASTER_GUIDE.txt) — Master manual covering pitch, problems, and deep technical solutions.
 - 🎭 [`TEAM_3_SPEAKER_PRESENTATION_SCRIPT.txt`](./TEAM_3_SPEAKER_PRESENTATION_SCRIPT.txt) — Word-by-word 3-speaker presentation script with exact time stamps.
-- 🖨️ [`SKILL_SYNC_SIH2026_MASTER_DOSSIER.html`](./SKILL_SYNC_SIH2026_MASTER_DOSSIER.html) — Printable, high-resolution official Government Dossier with 1-click **"Save as Attractive PDF"** button.
+- 🖨️ [`SKILL_SYNC_SIH2026_MASTER_DOSSIER.html`](./public/SKILL_SYNC_SIH2026_MASTER_DOSSIER.html) — Printable, high-resolution official Government Dossier with 1-click **"Save as Attractive PDF"** button.
 - 📚 [`SIH_RESEARCH_AND_REFERENCES.md`](./SIH_RESEARCH_AND_REFERENCES.md) — Citations from NITI Aayog, ILO, World Bank, NCAER, and Maharashtra Economic Surveys.
+
+---
+
+## 🔌 Backend API Reference
+
+| Endpoint | Method | Purpose |
+|---|---|---|
+| `/api/analytics` | `GET` | Statewide longitudinal aggregates. Optional filters: `?district=`, `&region=`, `&tier=`, `&sector=` — KPIs recompute over the filtered district set |
+| `/api/consent` | `POST` | DPDP Act 2023 consent recording → returns `consentToken` + `ledgerHash` |
+| `/api/telemetry` | `POST` | Multi-channel outcome ingestion (WhatsApp/IVR/USSD/SMS/PWA). Accepts `monthlySalary` or `salary`, `channelUsed` or `channel` |
+| `/api/telemetry` | `GET` | Longitudinal telemetry lookup by `?traineeId=` (id or DPDP token) |
+| `/api/verify` | `POST` | Employer triangulation — `action: lookup` (EPFO/NAPS establishment check) or `confirm`/`dispute` |
+| `/api/ai/predict-attrition` | `POST` | Random Forest attrition inference → `riskScorePercentage`, `riskLevel`, SHAP-style factor ranking, `modelVersion`, `rocAuc` |
+| `/verify/[id]` | `GET` | Public phone-scannable W3C Verifiable Credential proof page (real SHA-256 credential fingerprint) |
+| `/manifest.webmanifest` | `GET` | Installable-PWA manifest (standalone, theme-color, Apple meta) |
+
+---
+
+## ✅ Quality Gates & Verification
+
+```bash
+npm test          # Vitest unit tests (attrition engine, crypto hashing, utils, apiClient)
+npx tsc --noEmit  # strict TypeScript check
+npx next lint     # ESLint (0 warnings)
+npm run build     # production build (routes code-split; home First Load JS ~243 kB)
+```
+
+The demo also ships: **localStorage persistence** (simulator edits survive refresh), **client-side `qrcode` generation** (QR demo works fully offline), a **30s-live-syncing analytics clock**, and an **`aria-live` telemetry ticker**.
 
 ---
 
@@ -192,7 +220,7 @@ Government skilling portals today capture enrollment, classroom attendance, asse
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/sahooarnav2007-gif/proj2.git
+   git clone https://github.com/sahooarnav2007-git/proj2.git
    cd proj2
    ```
 

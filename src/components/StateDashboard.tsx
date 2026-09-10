@@ -41,6 +41,13 @@ import {
 
 interface AnalyticsApiResponse {
   success: boolean;
+  filtersApplied: {
+    district: string | null;
+    region: string | null;
+    tier: string | null;
+    sector: string | null;
+    districtCount: number;
+  };
   statewideSummary: {
     totalTrainedLongitudinal: number;
     totalCertified: number;
@@ -83,20 +90,25 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   const [districtViewMode, setDistrictViewMode] = useState<'map' | 'table'>('map');
   const [isStressTestOpen, setIsStressTestOpen] = useState<boolean>(false);
   const [apiStatus, setApiStatus] = useState<'loading' | 'online' | 'offline'>('loading');
-  const [apiSummary, setApiSummary] = useState<{ certificationRate?: string; source?: string } | null>(null);
+  const [apiSummary, setApiSummary] = useState<{ certificationRate?: string; source?: AnalyticsApiResponse['filtersApplied'] } | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
 
   // Live aggregation from /api/analytics (falls back to local props if unreachable).
-  // Re-polls every 30s so the dashboard behaves like a live ops cockpit.
+  // Re-polls every 30s AND whenever the region/tier drilldown filters change, so the
+  // header KPIs recompute for the current scope like a real ops cockpit.
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       try {
-        const res = await apiFetch<AnalyticsApiResponse>('/api/analytics');
+        const params = new URLSearchParams();
+        if (selectedRegion !== 'All') params.set('region', selectedRegion);
+        if (selectedTier !== 'All') params.set('tier', selectedTier);
+        const query = params.toString();
+        const res = await apiFetch<AnalyticsApiResponse>(`/api/analytics${query ? `?${query}` : ''}`);
         if (cancelled) return;
         setApiStatus('online');
-        setApiSummary({ certificationRate: res.statewideSummary.certificationRate });
+        setApiSummary({ certificationRate: res.statewideSummary.certificationRate, source: res.filtersApplied });
         setLastSyncedAt(new Date());
       } catch {
         if (!cancelled) setApiStatus('offline');
@@ -110,7 +122,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
       cancelled = true;
       clearInterval(interval);
     };
-  }, []);
+  }, [selectedRegion, selectedTier]);
 
   // Aggregated statewide numbers
   const stateStats = useMemo(() => {
@@ -200,6 +212,11 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 }`}></span>
                 {apiStatus === 'online' ? `API LIVE${lastSyncedAt ? ` • ${lastSyncedAt.toLocaleTimeString()}` : ''}` : apiStatus === 'offline' ? '/api/analytics OFFLINE' : 'Linking /api/analytics'}
               </span>
+              {apiStatus === 'online' && (selectedRegion !== 'All' || selectedTier !== 'All') && (
+                <span className="ml-1.5 px-1.5 py-0.5 bg-orange-950/60 border border-orange-700/40 rounded-md text-[10px] text-orange-300 font-mono">
+                  {[selectedRegion, selectedTier].filter(x => x !== 'All').join(' / ')}
+                </span>
+              )}
               {onOpenExportReport && (
                 <button
                   onClick={onOpenExportReport}

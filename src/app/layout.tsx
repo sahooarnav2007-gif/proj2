@@ -19,6 +19,14 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Skill Sync — Longitudinal Skilling Outcomes & Impact Tracker | SIH 2026",
   description: "Government of Maharashtra (MSIS / Dept of Skills) Longitudinal Skilling Tracker, Multi-channel Follow-ups, and Triangulation Platform.",
+  applicationName: "Skill Sync",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#ea580c",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Skill Sync",
+  },
   icons: {
     icon: "/favicon.ico",
   }

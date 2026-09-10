@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Language, DistrictMetric, TrainingProviderMetric, SectorOutcome } from '@/types';
 import { translations, formatINR, formatPercent } from '@/lib/utils';
+import { apiFetch } from '@/lib/apiClient';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { MaharashtraGeoMap } from '@/components/MaharashtraGeoMap';
 import { StressTestBench } from '@/components/StressTestBench';
 import { 
@@ -65,6 +67,36 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   const [searchDistrictQuery, setSearchDistrictQuery] = useState<string>('');
   const [districtViewMode, setDistrictViewMode] = useState<'map' | 'table'>('map');
   const [isStressTestOpen, setIsStressTestOpen] = useState<boolean>(false);
+  const [apiStatus, setApiStatus] = useState<'loading' | 'online' | 'offline'>('loading');
+  const [apiSummary, setApiSummary] = useState<{ certificationRate?: string; source?: string } | null>(null);
+
+  // Live aggregation from /api/analytics (falls back to local props if unreachable)
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch<{
+      success: boolean;
+      statewideSummary: {
+        totalTrainedLongitudinal: number;
+        totalCertified: number;
+        certificationRate: string;
+        avgRetention6M: string;
+        avgRetention12M: string;
+        avgRetention24M: string;
+        avgWageMultiplier: string;
+        avgTriangulationTrustScore: string;
+        privacyCompliance: string;
+      };
+    }>('/api/analytics')
+      .then((res) => {
+        if (cancelled) return;
+        setApiStatus('online');
+        setApiSummary({ certificationRate: res.statewideSummary.certificationRate });
+      })
+      .catch(() => {
+        if (!cancelled) setApiStatus('offline');
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   // Aggregated statewide numbers
   const stateStats = useMemo(() => {
@@ -141,6 +173,19 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
+              <span className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
+                apiStatus === 'online'
+                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-400/40'
+                  : apiStatus === 'offline'
+                  ? 'bg-amber-500/15 text-amber-300 border-amber-400/40'
+                  : 'bg-slate-500/15 text-slate-300 border-slate-400/40'
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${
+                  apiStatus === 'loading' ? 'bg-slate-400 animate-pulse' :
+                  apiStatus === 'online' ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'
+                }`}></span>
+                {apiStatus === 'online' ? '/api/analytics LIVE' : apiStatus === 'offline' ? '/api/analytics OFFLINE' : 'Linking /api/analytics'}
+              </span>
               {onOpenExportReport && (
                 <button
                   onClick={onOpenExportReport}
@@ -175,11 +220,11 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <Users className="w-4 h-4 text-orange-400" />
               </div>
               <div className="text-2xl font-black mt-2 text-white">
-                {stateStats.totalTrained.toLocaleString()}
+                <AnimatedNumber value={stateStats.totalTrained} />
               </div>
               <div className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-0.5">
                 <ArrowUpRight className="w-3 h-3" />
-                <span>91.8% Certified</span>
+                <span>{apiSummary?.certificationRate ?? '91.8% Certified'}</span>
               </div>
             </div>
 
@@ -189,7 +234,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <Award className="w-4 h-4 text-amber-400" />
               </div>
               <div className="text-2xl font-black mt-2 text-white">
-                {formatPercent(stateStats.avg6M)}
+                <AnimatedNumber value={stateStats.avg6M} decimals={1} delayMs={120} />%
               </div>
               <div className="text-[11px] text-slate-300 mt-1">
                 Triangulated 6-Month Post Cert
@@ -202,7 +247,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <TrendingUp className="w-4 h-4 text-teal-400" />
               </div>
               <div className="text-2xl font-black mt-2 text-white">
-                {formatPercent(stateStats.avg12M)}
+                <AnimatedNumber value={stateStats.avg12M} decimals={1} delayMs={240} />%
               </div>
               <div className="text-[11px] text-slate-300 mt-1">
                 Longitudinal 1-Year Mark
@@ -215,7 +260,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <DollarSign className="w-4 h-4 text-emerald-400" />
               </div>
               <div className="text-2xl font-black mt-2 text-emerald-300">
-                {stateStats.avgMultiplier.toFixed(2)}x
+                <AnimatedNumber value={stateStats.avgMultiplier} decimals={2} delayMs={360} />x
               </div>
               <div className="text-[11px] text-emerald-400 mt-1">
                 ₹14.5k → ₹26.8k avg hike
@@ -228,7 +273,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <ShieldCheck className="w-4 h-4 text-cyan-400" />
               </div>
               <div className="text-2xl font-black mt-2 text-cyan-300">
-                {formatPercent(stateStats.avgTrust)}
+                <AnimatedNumber value={stateStats.avgTrust} decimals={1} delayMs={480} />%
               </div>
               <div className="text-[11px] text-slate-300 mt-1">
                 EPFO + Employer + Bot Match
@@ -241,7 +286,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 <Store className="w-4 h-4 text-purple-400" />
               </div>
               <div className="text-2xl font-black mt-2 text-purple-300">
-                {formatPercent(stateStats.avgSelfEmp)}
+                <AnimatedNumber value={stateStats.avgSelfEmp} decimals={1} delayMs={600} />%
               </div>
               <div className="text-[11px] text-slate-300 mt-1">
                 Udyam & MUDRA Verified

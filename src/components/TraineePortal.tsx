@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Trainee, Language } from '@/types';
 import { formatINR } from '@/lib/utils';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { VerifiableBadgeModal } from '@/components/VerifiableBadgeModal';
 import { 
   Coins, 
@@ -106,7 +107,7 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
               </div>
               <div>
                 <span className="text-xs text-amber-200 block font-semibold">SkillCoins Earned</span>
-                <span className="text-2xl font-black text-amber-300">{trainee.skillCoins} Coins</span>
+                <span className="text-2xl font-black text-amber-300"><AnimatedNumber value={trainee.skillCoins} /> Coins</span>
               </div>
             </div>
             <span className="text-[10px] text-slate-400">

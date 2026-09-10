@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useLiveEvents } from '@/lib/liveEvents';
 import { 
   PhoneCall, 
   PhoneOff, 
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 
 export const IVRSimulator: React.FC = () => {
+  const { publish } = useLiveEvents();
   const [callState, setCallState] = useState<'idle' | 'calling' | 'connected' | 'ended'>('idle');
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [isMuted, setIsMuted] = useState<boolean>(false);
@@ -184,6 +186,11 @@ export const IVRSimulator: React.FC = () => {
     playDTMFTone(key);
     setSelectedResponse(`Keypad Pressed [${key}] : ${label}`);
     setCoinsEarned(true);
+    publish({
+      tone: 'success',
+      title: 'IVR Outcome Verified',
+      message: `${label} • +50 SkillCoins synced via ${callLang.toUpperCase()} IVR`
+    });
 
     const devanagariConfirmation = callLang === 'mr'
       ? (key === '1' 

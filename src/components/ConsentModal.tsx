@@ -2,7 +2,18 @@
 
 import React, { useState } from 'react';
 import { Trainee } from '@/types';
-import { X, ShieldCheck, Lock, Save } from 'lucide-react';
+import { X, ShieldCheck, Lock, Save, Loader2 } from 'lucide-react';
+import { apiFetch } from '@/lib/apiClient';
+
+interface ConsentApiResponse {
+  success: boolean;
+  action: string;
+  traineeId: string;
+  consentToken: string;
+  ledgerHash: string;
+  timestamp: string;
+  dpdpComplianceStatus: string;
+}
 
 interface ConsentModalProps {
   trainee: Trainee;
@@ -19,21 +30,43 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
   });
 
   const [saved, setSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const toggle = (key: keyof typeof consent) => {
     setConsent(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const handleSave = () => {
-    onSave({
-      ...consent,
-      lastConsentDate: new Date().toISOString().split('T')[0],
-      consentToken: trainee.activeConsent.consentToken,
-    });
-    setSaved(true);
-    setTimeout(() => {
-      onClose();
-    }, 1500);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const res = await apiFetch<ConsentApiResponse>('/api/consent', {
+        method: 'POST',
+        body: JSON.stringify({
+          traineeId: trainee.id,
+          placementTracking: consent.placementTracking,
+          wageResearchAnonymized: consent.wageResearchAnonymized,
+          employerDirectMatching: consent.employerDirectMatching,
+          epfoAadhaarTriangulation: consent.epfoAadhaarTriangulation,
+          action: 'grant',
+        }),
+      });
+
+      onSave({
+        ...consent,
+        lastConsentDate: new Date().toISOString().split('T')[0],
+        consentToken: res.consentToken,
+      });
+      setSaved(true);
+      setTimeout(() => {
+        onClose();
+      }, 1500);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to update consent');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -131,22 +164,28 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 pt-2">
+        <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
+          {saveError && (
+            <span className="text-xs text-rose-600 dark:text-rose-400 font-semibold flex-1">
+              {saveError}
+            </span>
+          )}
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 font-semibold text-xs"
+            disabled={isSaving}
+            className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 font-semibold text-xs disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSave}
-            disabled={saved}
+            disabled={saved || isSaving}
             className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2 disabled:opacity-50"
           >
-            <Save className="w-4 h-4" />
-            <span>{saved ? 'Consent Updated!' : 'Save Consent Preferences'}</span>
+            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <span>{saved ? 'Consent Updated!' : isSaving ? 'Tokenizing Ledger Entry...' : 'Save Consent Preferences'}</span>
           </button>
         </div>
       </div>

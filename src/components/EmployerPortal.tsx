@@ -3,6 +3,16 @@
 import React, { useState } from 'react';
 import { Language, EmployerVerificationItem } from '@/types';
 import { translations, formatINR } from '@/lib/utils';
+import { useLiveEvents } from '@/lib/liveEvents';
+import { apiFetch } from '@/lib/apiClient';
+
+interface VerifyApiResponse {
+  success: boolean;
+  itemId: string;
+  newStatus: 'Verified' | 'Disputed';
+  triangulationMatchScore: number;
+  remarks: string;
+}
 import { 
   Briefcase, 
   CheckCircle2, 
@@ -13,7 +23,8 @@ import {
   MessageSquarePlus, 
   Building, 
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 
 interface EmployerPortalProps {
@@ -26,10 +37,12 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
   initialQueue
 }) => {
   const t = translations[currentLanguage];
+  const { publish } = useLiveEvents();
 
   const [queue, setQueue] = useState<EmployerVerificationItem[]>(initialQueue);
   const [selectedItem, setSelectedItem] = useState<EmployerVerificationItem | null>(null);
   const [bulkUploadMsg, setBulkUploadMsg] = useState<string | null>(null);
+  const [submittingId, setSubmittingId] = useState<string | null>(null);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
   const [skillFeedback, setSkillFeedback] = useState({
     sector: 'Automotive & EV',
@@ -38,38 +51,93 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
     companyName: 'Tata Motors Passenger Vehicles Ltd'
   });
 
-  const handleVerify = (id: string) => {
-    setQueue(prev => prev.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
-          verificationStatus: 'Verified',
-          triangulationMatchScore: 100,
-          hrRemarks: 'Verified by HR Manager via Skill Sync Employer Portal.'
-        };
-      }
-      return item;
-    }));
+  const handleVerify = async (id: string) => {
+    setSubmittingId(id);
+    try {
+      const res = await apiFetch<VerifyApiResponse>('/api/verify', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'confirm', itemId: id }),
+      });
+
+      setQueue(prev => prev.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            verificationStatus: 'Verified',
+            triangulationMatchScore: res.triangulationMatchScore,
+            hrRemarks: res.remarks,
+          };
+        }
+        return item;
+      }));
+
+      const item = queue.find(q => q.id === id);
+      publish({
+        tone: 'success',
+        title: 'Employment Record Verified via /api/verify',
+        message: `${item?.traineeName ?? 'Trainee'} • ${item?.trainingProviderName ?? 'TP'} • ${res.triangulationMatchScore}% triangulation match`
+      });
+    } catch (err) {
+      publish({
+        tone: 'warning',
+        title: 'Verification API Error',
+        message: err instanceof Error ? err.message : 'Unable to reach /api/verify'
+      });
+    } finally {
+      setSubmittingId(null);
+    }
   };
 
-  const handleDispute = (id: string) => {
-    setQueue(prev => prev.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
-          verificationStatus: 'Disputed',
-          triangulationMatchScore: 40,
-          hrRemarks: 'Discrepancy reported: Candidate is not currently on active payroll.'
-        };
-      }
-      return item;
-    }));
+  const handleDispute = async (id: string) => {
+    setSubmittingId(id);
+    try {
+      const res = await apiFetch<VerifyApiResponse>('/api/verify', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'dispute', itemId: id }),
+      });
+
+      setQueue(prev => prev.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            verificationStatus: 'Disputed',
+            triangulationMatchScore: res.triangulationMatchScore,
+            hrRemarks: res.remarks,
+          };
+        }
+        return item;
+      }));
+
+      publish({
+        tone: 'warning',
+        title: 'Discrepancy Reported via /api/verify',
+        message: res.remarks
+      });
+    } catch (err) {
+      publish({
+        tone: 'warning',
+        title: 'Verification API Error',
+        message: err instanceof Error ? err.message : 'Unable to reach /api/verify'
+      });
+    } finally {
+      setSubmittingId(null);
+    }
   };
 
   const handleBulkUploadSim = () => {
     setBulkUploadMsg('Processing 120 employee payroll records from HRMS API...');
+    publish({
+      tone: 'system',
+      title: 'Bulk HRMS Reconciliation Started',
+      message: 'Ingesting 120 payroll records from corporate HRMS API...'
+    });
     setTimeout(() => {
       setBulkUploadMsg('✅ Successfully verified 114 active skilling alumni across Pune & Waluj facilities. 6 discrepancies flagged for review.');
+      publish({
+        tone: 'success',
+        title: 'Bulk HRMS Reconciliation Complete',
+        message: '114 alumni verified • 6 discrepancies flagged for review'
+      });
       setTimeout(() => setBulkUploadMsg(null), 6000);
     }, 1500);
   };
@@ -224,15 +292,17 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => handleVerify(item.id)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded font-bold text-xs flex items-center gap-1 transition"
+                          disabled={submittingId !== null}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded font-bold text-xs flex items-center gap-1 transition disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Confirm Employment"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Confirm</span>
+                          {submittingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                          <span>{submittingId === item.id ? 'Verifying' : 'Confirm'}</span>
                         </button>
                         <button
                           onClick={() => handleDispute(item.id)}
-                          className="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded font-bold text-xs flex items-center gap-1 transition"
+                          disabled={submittingId !== null}
+                          className="bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 rounded font-bold text-xs flex items-center gap-1 transition disabled:opacity-50 disabled:cursor-not-allowed"
                           title="Report Discrepancy"
                         >
                           <XCircle className="w-3.5 h-3.5" />

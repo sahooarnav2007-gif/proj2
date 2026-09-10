@@ -22,10 +22,13 @@ import { ConsentModal } from '@/components/ConsentModal';
 import { LiveMobileDemoModal } from '@/components/LiveMobileDemoModal';
 import { Footer } from '@/components/Footer';
 
-import { translations } from '@/lib/utils';
+import { translations, formatINR } from '@/lib/utils';
+import { apiFetch } from '@/lib/apiClient';
+import { useLiveEvents } from '@/lib/liveEvents';
 import { Sparkles, Bot, ShieldCheck, Award, HeartHandshake } from 'lucide-react';
 
 export default function Home() {
+  const { publish } = useLiveEvents();
   // Global State
   const [currentRole, setCurrentRole] = useState<Role>('state_admin');
   const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
@@ -73,21 +76,75 @@ export default function Home() {
       }
       return t;
     }));
-  };
 
-  // Handle bot outcome update
-  const handleBotOutcomeSubmitted = (data: { salary: number; status: string; channel: string }) => {
-    setTrainees(prev => prev.map((t, idx) => {
-      if (idx === 0) {
-        return {
-          ...t,
-          currentSalary: data.salary,
-          skillCoins: t.skillCoins + 50,
-          overallTrustScore: 98
-        };
-      }
-      return t;
-    }));
+    const trainee = trainees[activeTraineeIndex];
+    publish({
+      tone: 'success',
+      title: 'Career Milestone Recorded',
+      message: `${trainee?.fullName ?? 'Trainee'} • ${company} • ${formatINR(salary)}/mo — +50 SkillCoins`
+    });
+  };
+  const handleBotOutcomeSubmitted = async (data: { salary: number; status: string; channel: string }) => {
+    try {
+      const res = await apiFetch<{
+        success: boolean;
+        record: { month: number; timestamp: string; status: string; verificationStatus: string };
+        skillCoinsAwarded: number;
+        trustScore: number;
+        dpdpAuditToken: string;
+      }>('/api/telemetry', {
+        method: 'POST',
+        body: JSON.stringify({
+          traineeId: trainees[0]?.id,
+          month: 24,
+          status: data.status,
+          monthlySalary: data.salary,
+          designation: 'Verified Specialist',
+          companyName: 'Triangulated Employer',
+          channelUsed: data.channel,
+        }),
+      });
+
+      setTrainees(prev => prev.map((t, idx) => {
+        if (idx === 0) {
+          return {
+            ...t,
+            currentSalary: data.salary,
+            skillCoins: t.skillCoins + res.skillCoinsAwarded,
+            overallTrustScore: res.trustScore,
+            longitudinalTimeline: [
+              ...t.longitudinalTimeline,
+              {
+                month: 24,
+                timestamp: res.record.timestamp,
+                status: 'employed_formal' as const,
+                companyName: 'Verified Employer',
+                designation: 'Specialist',
+                monthlySalary: data.salary,
+                epfoUanMatched: true,
+                verificationStatus: res.record.verificationStatus as Trainee['longitudinalTimeline'][number]['verificationStatus'],
+                trustScore: res.trustScore,
+                channelUsed: data.channel as Trainee['longitudinalTimeline'][number]['channelUsed'],
+                attritionRiskScore: 15,
+              }
+            ]
+          };
+        }
+        return t;
+      }));
+
+      publish({
+        tone: 'success',
+        title: 'Follow-Up Outcome Synced via /api/telemetry',
+        message: `Channel: ${data.channel} • ${formatINR(data.salary)}/mo • Audit ${res.dpdpAuditToken}`
+      });
+    } catch (err) {
+      publish({
+        tone: 'warning',
+        title: 'Telemetry Ingestion Failed',
+        message: err instanceof Error ? err.message : 'Unable to reach /api/telemetry'
+      });
+    }
   };
 
   return (
@@ -236,6 +293,11 @@ export default function Home() {
               }
               return t;
             }));
+            publish({
+              tone: 'info',
+              title: 'DPDP Consent Vault Updated',
+              message: `Token ${consent.consentToken} refreshed • Updated ${consent.lastConsentDate}`,
+            });
           }}
         />
       )}

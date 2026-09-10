@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SKILL_GAP_NLP_TOPICS } from '@/data/mockData';
 import { formatINR } from '@/lib/utils';
 import { calculateAttritionRisk } from '@/lib/attritionScore';
+import { apiFetch } from '@/lib/apiClient';
 import { AttritionPredictionInput } from '@/types';
 import { 
   BookOpen, 
@@ -15,7 +16,8 @@ import {
   TrendingUp,
   ShieldCheck,
   CheckCircle2,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from 'lucide-react';
 
 interface SHAPFeatureWeight {
@@ -23,6 +25,29 @@ interface SHAPFeatureWeight {
   value: string;
   impact: number; // positive increases risk, negative decreases risk
   description: string;
+}
+
+type RiskLevel = 'Low' | 'Moderate' | 'High' | 'Critical';
+
+interface EnrichedPrediction {
+  score: number;
+  level: RiskLevel;
+  intervention: string;
+  color: string;
+  bg: string;
+}
+
+interface AttritionApiResponse {
+  success: boolean;
+  modelVersion: string;
+  rocAuc: number;
+  inferenceTimestamp: string;
+  prediction: {
+    riskScorePercentage: number;
+    riskLevel: RiskLevel;
+    daysHorizon: number;
+    recommendedCounselorIntervention: string;
+  };
 }
 
 export const PredictiveAIStudio: React.FC = () => {
@@ -35,20 +60,8 @@ export const PredictiveAIStudio: React.FC = () => {
   const [isInformal, setIsInformal] = useState<boolean>(true);
   const [monthsInJob, setMonthsInJob] = useState<number>(2);
 
-  // Predictive algorithm calculation
-  const prediction = useMemo(() => {
-    const input: AttritionPredictionInput = {
-      sector,
-      monthlySalary: salary,
-      commuteKm,
-      shiftType,
-      trainingRelevanceScore: relevance,
-      isInformal,
-      monthsInJob,
-      district: 'Pune',
-    };
-    const result = calculateAttritionRisk(input);
-
+  // Predictive algorithm calculation — local classifier snapshot + live /api/ai/predict-attrition inference
+  function enrichPrediction(result: { score: number; level: RiskLevel; intervention: string }): EnrichedPrediction {
     let color = 'text-emerald-600 dark:text-emerald-400';
     let bg = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800';
 
@@ -64,6 +77,74 @@ export const PredictiveAIStudio: React.FC = () => {
     }
 
     return { ...result, color, bg };
+  }
+
+  const [prediction, setPrediction] = useState<EnrichedPrediction>(() =>
+    enrichPrediction(calculateAttritionRisk({
+      sector,
+      monthlySalary: salary,
+      commuteKm,
+      shiftType,
+      trainingRelevanceScore: relevance,
+      isInformal,
+      monthsInJob,
+      district: 'Pune',
+    }))
+  );
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [modelMeta, setModelMeta] = useState<{ modelVersion: string; rocAuc: number } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+
+    const input: AttritionPredictionInput = {
+      sector,
+      monthlySalary: salary,
+      commuteKm,
+      shiftType,
+      trainingRelevanceScore: relevance,
+      isInformal,
+      monthsInJob,
+      district: 'Pune',
+    };
+
+    // Instantly render the deterministic local classifier snapshot (progressive enhancement)
+    setPrediction(enrichPrediction(calculateAttritionRisk(input)));
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await apiFetch<AttritionApiResponse>('/api/ai/predict-attrition', {
+          method: 'POST',
+          body: JSON.stringify({
+            sector,
+            monthlySalary: salary,
+            commuteKm,
+            shiftType,
+            trainingRelevanceScore: relevance,
+            isInformal,
+            monthsInJob,
+            district: 'Pune',
+          }),
+        });
+        if (cancelled) return;
+        setPrediction(enrichPrediction({
+          score: res.prediction.riskScorePercentage,
+          level: res.prediction.riskLevel,
+          intervention: res.prediction.recommendedCounselorIntervention,
+        }));
+        setModelMeta({ modelVersion: res.modelVersion, rocAuc: res.rocAuc });
+      } catch {
+        // API unavailable — keep the local classifier snapshot already rendered
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }, 450);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [sector, salary, commuteKm, shiftType, relevance, isInformal, monthsInJob]);
 
   // Explainable AI (XAI) SHAP Feature Attribution Waterfall calculation
@@ -291,9 +372,17 @@ export const PredictiveAIStudio: React.FC = () => {
         <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
           <div className={`p-6 rounded-2xl border ${prediction.bg} shadow-lg space-y-4`}>
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                Predicted Job Exit Probability
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                  Predicted Job Exit Probability
+                </span>
+                {isLoading && (
+                  <span className="flex items-center gap-1 text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    AI Inferencing
+                  </span>
+                )}
+              </div>
               <span className={`text-xs font-black px-2.5 py-1 rounded-full uppercase ${
                 prediction.level === 'Critical' ? 'bg-rose-600 text-white' :
                 prediction.level === 'High' ? 'bg-amber-500 text-white' :
@@ -336,9 +425,9 @@ export const PredictiveAIStudio: React.FC = () => {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-500 space-y-1">
             <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Model Architecture: Random Forest Classifier (v2.6.4)</span>
+              <span>Model Architecture: {modelMeta?.modelVersion ?? 'Random Forest Classifier (v2.6.4, local snapshot)'}</span>
             </span>
-            <p>Trained on 140k+ longitudinal skilling records across 36 Maharashtra districts (ROC-AUC: 0.912).</p>
+            <p>Trained on 140k+ longitudinal skilling records across 36 Maharashtra districts (ROC-AUC: {modelMeta?.rocAuc ?? 0.912}).</p>
           </div>
         </div>
       </div>

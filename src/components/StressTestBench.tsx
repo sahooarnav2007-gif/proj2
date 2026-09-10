@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useLiveEvents } from '@/lib/liveEvents';
 import { 
   Zap, 
   Activity, 
@@ -29,6 +30,7 @@ interface TelemetryPacket {
 }
 
 export const StressTestBench: React.FC = () => {
+  const { publish } = useLiveEvents();
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [targetVolume, setTargetVolume] = useState<number>(50000);
   const [processedCount, setProcessedCount] = useState<number>(0);
@@ -38,6 +40,7 @@ export const StressTestBench: React.FC = () => {
   const [zkpProofsCount, setZkpProofsCount] = useState<number>(0);
   const [packets, setPackets] = useState<TelemetryPacket[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const completedSentRef = useRef(false);
 
   const districts = ['Pune', 'Gadchiroli', 'Nandurbar', 'Nagpur', 'Solapur', 'Nashik', 'Chhatrapati Sambhajinagar', 'Thane', 'Kolhapur', 'Amravati'];
   const sectors = ['Automotive / EV', 'Renewable Energy / Solar', 'Medicinal Processing', 'Precision Manufacturing', 'IT & Cloud Ops'];
@@ -50,6 +53,14 @@ export const StressTestBench: React.FC = () => {
           if (next >= targetVolume) {
             setIsRunning(false);
             if (intervalRef.current) clearInterval(intervalRef.current);
+            if (!completedSentRef.current) {
+              completedSentRef.current = true;
+              publish({
+                tone: 'success',
+                title: '50K Telemetry Stress Test Complete',
+                message: `${targetVolume.toLocaleString('en-IN')} packets triangulated in real-time • ZK proofs minted`
+              });
+            }
             return targetVolume;
           }
           return next;
@@ -88,11 +99,24 @@ export const StressTestBench: React.FC = () => {
       setProcessedCount(0);
       setZkpProofsCount(0);
       setPackets([]);
+      completedSentRef.current = false;
     }
     setIsRunning(true);
+    publish({
+      tone: 'system',
+      title: 'Live Telemetry Ingestion Stream Launched',
+      message: `Social registry reconciliation flooding at ${targetVolume.toLocaleString('en-IN')} packets / 30s window`
+    });
   };
 
   const handlePause = () => {
+    if (isRunning) {
+      publish({
+        tone: 'warning',
+        title: 'Ingestion Stream Paused',
+        message: `Paused at ${processedCount.toLocaleString('en-IN')} records processed`
+      });
+    }
     setIsRunning(false);
   };
 
@@ -102,6 +126,7 @@ export const StressTestBench: React.FC = () => {
     setThroughput(0);
     setZkpProofsCount(0);
     setPackets([]);
+    completedSentRef.current = false;
   };
 
   const progressPercent = Math.min(Math.round((processedCount / targetVolume) * 100), 100);

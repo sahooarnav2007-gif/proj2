@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Trainee, Language } from '@/types';
 import { formatINR, getStatusBadgeInfo } from '@/lib/utils';
+import { useLiveEvents } from '@/lib/liveEvents';
 import { 
   Users, 
   Send, 
@@ -29,6 +30,7 @@ export const TrainingProviderPortal: React.FC<TrainingProviderPortalProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [campaignSuccessMsg, setCampaignSuccessMsg] = useState<string | null>(null);
   const [isDispatching, setIsDispatching] = useState<boolean>(false);
+  const { publish } = useLiveEvents();
 
   // Filtered trainees list
   const filteredTrainees = useMemo(() => {
@@ -51,9 +53,19 @@ export const TrainingProviderPortal: React.FC<TrainingProviderPortalProps> = ({
 
   const handleTriggerReengagement = (channel: string) => {
     setIsDispatching(true);
+    publish({
+      tone: 'system',
+      title: 'Automated Follow-Up Campaign Dispatching',
+      message: `Routing 248 pending trainees via ${channel.toUpperCase()} across Maharashtra...`
+    });
     setTimeout(() => {
       setIsDispatching(false);
       setCampaignSuccessMsg(`🚀 Automated follow-up campaign dispatched via ${channel} to 248 pending trainees across Maharashtra!`);
+      publish({
+        tone: 'success',
+        title: 'Re-Engagement Campaign Dispatched',
+        message: `248 trainee records queued via ${channel.toUpperCase()} at DSDC priority tier 1`
+      });
       setTimeout(() => setCampaignSuccessMsg(null), 6000);
     }, 1200);
   };

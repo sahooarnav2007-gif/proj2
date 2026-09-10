@@ -37,7 +37,11 @@ export const LiveEventTicker: React.FC = () => {
   if (events.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-[100] flex flex-col gap-2 w-[min(22rem,calc(100vw-2rem))]">
+    <div
+      className="fixed bottom-4 left-4 z-[100] flex flex-col gap-2 w-[min(22rem,calc(100vw-2rem))]"
+      aria-live="polite"
+      aria-label="Live MSIS telemetry events"
+    >
       <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900/95 dark:bg-black/90 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg border border-slate-700 shadow-lg backdrop-blur">
         <span className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>

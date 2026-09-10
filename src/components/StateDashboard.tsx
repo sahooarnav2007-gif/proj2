@@ -238,7 +238,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
               </div>
               <div className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-0.5">
                 <ArrowUpRight className="w-3 h-3" />
-                <span>{apiSummary?.certificationRate ?? '91.8% Certified'}</span>
+                <span>{apiSummary?.certificationRate ?? `${((stateStats.totalCertified / Math.max(stateStats.totalTrained, 1)) * 100).toFixed(1)}% Certified`}</span>
               </div>
             </div>
 

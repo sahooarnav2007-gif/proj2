@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { 
   MAHARASHTRA_DISTRICTS, 
   TRAINING_PROVIDERS, 
@@ -9,21 +10,52 @@ import {
 } from '@/data/mockData';
 import { Navbar } from '@/components/Navbar';
 import { StateDashboard } from '@/components/StateDashboard';
-import { TrainingProviderPortal } from '@/components/TrainingProviderPortal';
-import { EmployerPortal } from '@/components/EmployerPortal';
-import { TraineePortal } from '@/components/TraineePortal';
-import { SimulatorsContainer } from '@/components/Simulators';
-import { PredictiveAIStudio } from '@/components/PredictiveAIStudio';
-import { TraineeDetailModal } from '@/components/TraineeDetailModal';
-import { ExportReportModal } from '@/components/ExportReportModal';
-import { ConsentModal } from '@/components/ConsentModal';
-import { LiveMobileDemoModal } from '@/components/LiveMobileDemoModal';
 import { Footer } from '@/components/Footer';
 
 import { translations } from '@/lib/utils';
 import { useGlobalState } from '@/lib/globalState';
 import { Role } from '@/types';
 import { Sparkles } from 'lucide-react';
+
+// Role views are heavy (Recharts, NLP data, stress bench) — load them only when the role is entered
+const TrainingProviderPortal = dynamic(
+  () => import('@/components/TrainingProviderPortal').then(m => m.TrainingProviderPortal),
+  { ssr: false }
+);
+const EmployerPortal = dynamic(
+  () => import('@/components/EmployerPortal').then(m => m.EmployerPortal),
+  { ssr: false }
+);
+const TraineePortal = dynamic(
+  () => import('@/components/TraineePortal').then(m => m.TraineePortal),
+  { ssr: false }
+);
+const SimulatorsContainer = dynamic(
+  () => import('@/components/Simulators').then(m => m.SimulatorsContainer),
+  { ssr: false }
+);
+const PredictiveAIStudio = dynamic(
+  () => import('@/components/PredictiveAIStudio').then(m => m.PredictiveAIStudio),
+  { ssr: false }
+);
+
+// On-demand dialogs
+const TraineeDetailModal = dynamic(
+  () => import('@/components/TraineeDetailModal').then(m => m.TraineeDetailModal),
+  { ssr: false }
+);
+const ExportReportModal = dynamic(
+  () => import('@/components/ExportReportModal').then(m => m.ExportReportModal),
+  { ssr: false }
+);
+const ConsentModal = dynamic(
+  () => import('@/components/ConsentModal').then(m => m.ConsentModal),
+  { ssr: false }
+);
+const LiveMobileDemoModal = dynamic(
+  () => import('@/components/LiveMobileDemoModal').then(m => m.LiveMobileDemoModal),
+  { ssr: false }
+);
 
 export default function Home() {
   const {

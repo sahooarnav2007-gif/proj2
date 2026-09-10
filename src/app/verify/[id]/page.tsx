@@ -12,6 +12,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useGlobalState } from '@/lib/globalState';
+import { sha256Hex } from '@/lib/crypto';
 
 interface VerifyPageProps {
   params: {
@@ -49,6 +50,7 @@ export default function VerifyCredentialPage({ params }: VerifyPageProps) {
   const [verificationTime, setVerificationTime] = useState<string>('');
   const [proofOpen, setProofOpen] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [merkleRoot, setMerkleRoot] = useState<string>('Computing SHA-256 Merkle root…');
 
   const candidateId = params?.id || 'MSIS-8821';
   const trainee = trainees.find(x => x.pseudonymizedToken === candidateId) ?? null;
@@ -71,7 +73,28 @@ export default function VerifyCredentialPage({ params }: VerifyPageProps) {
     setVerificationTime(new Date().toUTCString());
   }, []);
 
-  const merkleRoot = '0x8f2d91c7a4e5902bc4a81';
+  // Derive the credential fingerprint directly from the trainee payload so
+  // every proof is unique to its subject (SHA-256, FNV fallback off-https).
+  useEffect(() => {
+    let cancelled = false;
+    const canonical = [
+      candidateId,
+      profile.fullName,
+      profile.maskedAadhaar,
+      profile.district,
+      profile.courseName,
+      profile.currentStatus,
+      profile.currentSalary,
+    ].join('|');
+    sha256Hex(canonical).then(hash => {
+      if (!cancelled) setMerkleRoot('0x' + hash);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidateId]);
+
   const issuerDid = 'did:india:mah:msis:gateway:01';
   const vcContext = 'https://www.w3.org/2018/credentials/v1';
 

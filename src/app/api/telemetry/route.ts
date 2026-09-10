@@ -5,7 +5,7 @@ import { MOCK_TRAINEES } from '@/data/mockData';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { traineeId, month, status, monthlySalary, designation, companyName, channelUsed } = body;
+    const { traineeId, month, status, monthlySalary, salary, designation, companyName, company, channelUsed, channel } = body;
 
     if (!traineeId || !month || !status) {
       return NextResponse.json(
@@ -14,15 +14,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const resolvedSalary = Number(monthlySalary ?? salary) || 0;
+
     // Process & Triangulate the outcome
     const newRecord = {
       month: Number(month),
       timestamp: new Date().toISOString().split('T')[0],
       status,
-      monthlySalary: Number(monthlySalary) || 0,
+      monthlySalary: resolvedSalary,
       designation: designation || 'Specialist',
-      companyName: companyName || 'Verified Employer',
-      channelUsed: channelUsed || 'whatsapp',
+      companyName: companyName || company || 'Verified Employer',
+      channelUsed: channelUsed || channel || 'whatsapp',
       verificationStatus: 'verified_triangulated',
       trustScore: 98,
       epfoUanMatched: true

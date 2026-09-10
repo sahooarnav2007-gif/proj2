@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Trainee, Language } from '@/types';
-import { formatINR } from '@/lib/utils';
+import { translations, formatINR } from '@/lib/utils';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { VerifiableBadgeModal } from '@/components/VerifiableBadgeModal';
 import { 
@@ -30,8 +30,10 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
   trainee,
   onUpdateMilestone,
   onOpenConsentModal,
-  onOpenSimulators
+  onOpenSimulators,
+  currentLanguage
 }) => {
+  const t = translations[currentLanguage ?? 'en'] ?? translations.en;
   const [showUpdateModal, setShowUpdateModal] = useState<boolean>(false);
   const [showVerifiableBadgeModal, setShowVerifiableBadgeModal] = useState<boolean>(false);
   const [newMonth, setNewMonth] = useState<number>(24);
@@ -170,15 +172,15 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Longitudinal Career & Wage Milestones
+                  {t.traineeTimeline}
                 </h3>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Verified trajectory from initial training stipend to current market salary.
+                {t.traineeTimelineSub}
               </p>
             </div>
             <span className="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 dark:text-emerald-300 px-3 py-1 rounded-full border border-emerald-200">
-              {(trainee.currentSalary / (trainee.initialStipend || 1)).toFixed(2)}x Wage Growth
+              {(trainee.currentSalary / (trainee.initialStipend || 1)).toFixed(2)}x {t.wageGrowth}
             </span>
           </div>
 
@@ -252,7 +254,7 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
             <div className="flex items-center gap-2 mb-4">
               <Lock className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                DPDP Act 2023 Consent Vault
+                {t.consentVault}
               </h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
@@ -320,7 +322,7 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
           </div>
 
           {/* Recommended Bridge Courses / Upskilling */}
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-900 dark:to-slate-850 rounded-2xl p-6 border border-orange-200 dark:border-orange-900/40 shadow-sm">
+          <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-900 dark:to-slate-800 rounded-2xl p-6 border border-orange-200 dark:border-orange-900/40 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-5 h-5 text-orange-600" />
               <h3 className="text-base font-bold text-slate-900 dark:text-white">

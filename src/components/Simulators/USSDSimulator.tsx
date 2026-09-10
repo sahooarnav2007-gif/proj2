@@ -20,6 +20,12 @@ export const USSDSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void 
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [skillCoins, setSkillCoins] = useState<number>(150);
   const [networkLatency, setNetworkLatency] = useState<number>(42);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const showError = (msg: string) => {
+    setErrorMsg(msg);
+    window.setTimeout(() => setErrorMsg((cur) => (cur === msg ? null : cur)), 3000);
+  };
 
   const playBeep = () => {
     try {
@@ -43,6 +49,7 @@ export const USSDSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void 
 
   const handleKeypadPress = (val: string) => {
     playBeep();
+    setErrorMsg(null);
     if (screenState === 'idle') {
       setDialInput(prev => prev + val);
     } else {
@@ -60,7 +67,8 @@ export const USSDSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void 
           setInputValue('');
         }, 800);
       } else {
-        alert('Please dial *342# (MahaSkill USSD Gateway)');
+        showError('Please dial *342# (MahaSkill USSD Gateway)');
+        setDialInput('');
       }
     } else if (screenState === 'menu1') {
       if (inputValue === '1') {
@@ -76,7 +84,7 @@ export const USSDSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void 
         setScreenState('menu_coins');
         setInputValue('');
       } else {
-        alert('Invalid Option. Enter 1, 2, 3 or 4');
+        showError('Invalid Option. Enter 1, 2, 3 or 4');
         setInputValue('');
       }
     } else if (screenState === 'menu_salary') {
@@ -131,6 +139,7 @@ export const USSDSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void 
     setDialInput('*342#');
     setInputValue('');
     setStatusMessage('');
+    setErrorMsg(null);
   };
 
   return (
@@ -195,6 +204,12 @@ export const USSDSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void 
 
               {/* Screen Display Content */}
               <div className="text-xs font-bold leading-tight flex-1 py-1">
+                {errorMsg && (
+                  <div className="text-[9px] text-red-800 font-black bg-red-200/80 rounded px-1.5 py-1 mb-1 animate-pulse">
+                    ⚠ {errorMsg}
+                  </div>
+                )}
+
                 {screenState === 'idle' && (
                   <div className="space-y-2 text-center pt-2">
                     <p className="text-[11px]">Dial *342# for Maharashtra Skill Tracker</p>
@@ -323,7 +338,7 @@ export const USSDSimulator: React.FC<{ onOutcomeSubmitted?: (data: any) => void 
                 <button
                   key={k}
                   onClick={() => handleKeypadPress(k)}
-                  className="bg-slate-750 hover:bg-slate-700 active:bg-slate-600 active:scale-95 bg-slate-800 border border-slate-700 py-2.5 rounded-xl flex flex-col items-center justify-center transition shadow-xs"
+                  className="bg-slate-800 hover:bg-slate-700 active:bg-slate-600 active:scale-95 border border-slate-700 py-2.5 rounded-xl flex flex-col items-center justify-center transition shadow-xs"
                 >
                   <span className="font-black text-sm">{k}</span>
                   <span className="text-[8px] text-slate-400 uppercase font-mono">{sub}</span>

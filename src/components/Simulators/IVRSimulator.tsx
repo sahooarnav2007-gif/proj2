@@ -158,6 +158,7 @@ export const IVRSimulator: React.FC = () => {
       setAudioTimer(0);
       setIsPlayingAudio(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- speakPrompt is a fresh closure intentionally called only on connect
   }, [callState, callLang, voiceLoaded]);
 
   const startCall = () => {

@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Role, Language, Trainee, EmployerVerificationItem } from '@/types';
+import React from 'react';
 import { 
   MAHARASHTRA_DISTRICTS, 
   TRAINING_PROVIDERS, 
   SECTOR_OUTCOMES, 
-  MOCK_TRAINEES, 
   EMPLOYER_VERIFICATION_QUEUE 
 } from '@/data/mockData';
 import { Navbar } from '@/components/Navbar';
@@ -22,140 +20,57 @@ import { ConsentModal } from '@/components/ConsentModal';
 import { LiveMobileDemoModal } from '@/components/LiveMobileDemoModal';
 import { Footer } from '@/components/Footer';
 
-import { translations, formatINR } from '@/lib/utils';
-import { apiFetch } from '@/lib/apiClient';
-import { useLiveEvents } from '@/lib/liveEvents';
-import { Sparkles, Bot, ShieldCheck, Award, HeartHandshake } from 'lucide-react';
+import { translations } from '@/lib/utils';
+import { useGlobalState } from '@/lib/globalState';
+import { Role } from '@/types';
+import { Sparkles } from 'lucide-react';
 
 export default function Home() {
-  const { publish } = useLiveEvents();
-  // Global State
-  const [currentRole, setCurrentRole] = useState<Role>('state_admin');
-  const [currentLanguage, setCurrentLanguage] = useState<Language>('en');
+  const {
+    currentRole,
+    setCurrentRole,
+    currentLanguage,
+    setCurrentLanguage,
+    trainees,
+    activeTraineeIndex,
+    setActiveTraineeIndex,
+    selectedTrainee,
+    setSelectedTrainee,
+    isExportModalOpen,
+    setIsExportModalOpen,
+    isLiveMobileQRModalOpen,
+    setIsLiveMobileQRModalOpen,
+    isConsentModalOpen,
+    setIsConsentModalOpen,
+    showAIStudioView,
+    setShowAIStudioView,
+    recordMilestone,
+    ingestBotOutcome,
+    updateConsent,
+  } = useGlobalState();
+
   const t = translations[currentLanguage] || translations.en;
-  const [trainees, setTrainees] = useState<Trainee[]>(MOCK_TRAINEES);
-  const [selectedTrainee, setSelectedTrainee] = useState<Trainee | null>(null);
-  const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
-  const [isLiveMobileQRModalOpen, setIsLiveMobileQRModalOpen] = useState<boolean>(false);
-  const [showAIStudioView, setShowAIStudioView] = useState<boolean>(false);
-  const [isConsentModalOpen, setIsConsentModalOpen] = useState<boolean>(false);
 
-  // Active trainee persona for trainee portal view
-  const [activeTraineeIndex, setActiveTraineeIndex] = useState<number>(0);
-
-  // Handle milestone reporting from Trainee portal or WhatsApp Bot
-  const handleUpdateMilestone = (month: number, salary: number, designation: string, company: string) => {
-    setTrainees(prev => prev.map((t, idx) => {
-      if (idx === activeTraineeIndex) {
-        const updatedTimeline = [
-          ...t.longitudinalTimeline,
-          {
-            month: month as any,
-            timestamp: '2026-03-01',
-            status: 'employed_formal' as const,
-            companyName: company,
-            designation: designation,
-            monthlySalary: salary,
-            epfoUanMatched: true,
-            verificationStatus: 'verified_triangulated' as const,
-            trustScore: 100,
-            channelUsed: 'pwa_portal' as const,
-            attritionRiskScore: 10
-          }
-        ];
-
-        return {
-          ...t,
-          currentSalary: salary,
-          currentEmployer: company,
-          currentDesignation: designation,
-          skillCoins: t.skillCoins + 50,
-          overallTrustScore: 100,
-          longitudinalTimeline: updatedTimeline
-        };
-      }
-      return t;
-    }));
-
-    const trainee = trainees[activeTraineeIndex];
-    publish({
-      tone: 'success',
-      title: 'Career Milestone Recorded',
-      message: `${trainee?.fullName ?? 'Trainee'} • ${company} • ${formatINR(salary)}/mo — +50 SkillCoins`
-    });
-  };
-  const handleBotOutcomeSubmitted = async (data: { salary: number; status: string; channel: string }) => {
-    try {
-      const res = await apiFetch<{
-        success: boolean;
-        record: { month: number; timestamp: string; status: string; verificationStatus: string };
-        skillCoinsAwarded: number;
-        trustScore: number;
-        dpdpAuditToken: string;
-      }>('/api/telemetry', {
-        method: 'POST',
-        body: JSON.stringify({
-          traineeId: trainees[0]?.id,
-          month: 24,
-          status: data.status,
-          monthlySalary: data.salary,
-          designation: 'Verified Specialist',
-          companyName: 'Triangulated Employer',
-          channelUsed: data.channel,
-        }),
-      });
-
-      setTrainees(prev => prev.map((t, idx) => {
-        if (idx === 0) {
-          return {
-            ...t,
-            currentSalary: data.salary,
-            skillCoins: t.skillCoins + res.skillCoinsAwarded,
-            overallTrustScore: res.trustScore,
-            longitudinalTimeline: [
-              ...t.longitudinalTimeline,
-              {
-                month: 24,
-                timestamp: res.record.timestamp,
-                status: 'employed_formal' as const,
-                companyName: 'Verified Employer',
-                designation: 'Specialist',
-                monthlySalary: data.salary,
-                epfoUanMatched: true,
-                verificationStatus: res.record.verificationStatus as Trainee['longitudinalTimeline'][number]['verificationStatus'],
-                trustScore: res.trustScore,
-                channelUsed: data.channel as Trainee['longitudinalTimeline'][number]['channelUsed'],
-                attritionRiskScore: 15,
-              }
-            ]
-          };
-        }
-        return t;
-      }));
-
-      publish({
-        tone: 'success',
-        title: 'Follow-Up Outcome Synced via /api/telemetry',
-        message: `Channel: ${data.channel} • ${formatINR(data.salary)}/mo • Audit ${res.dpdpAuditToken}`
-      });
-    } catch (err) {
-      publish({
-        tone: 'warning',
-        title: 'Telemetry Ingestion Failed',
-        message: err instanceof Error ? err.message : 'Unable to reach /api/telemetry'
-      });
+  // Handle QR-scan deep links (?role=simulators&demo=mobile) so a scanned
+  // phone lands directly on the intended role view.
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const role = params.get('role');
+    const validRoles: Array<Role> = ['state_admin', 'training_provider', 'employer', 'trainee', 'simulators', 'ai_studio'];
+    if (role && (validRoles as string[]).includes(role)) {
+      setCurrentRole(role as Role);
+      if (params.get('demo') === 'mobile') setIsLiveMobileQRModalOpen(true);
+      window.history.replaceState({}, '', window.location.pathname);
     }
-  };
+  }, [setCurrentRole, setIsLiveMobileQRModalOpen]);
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-orange-500 selection:text-white">
       {/* Top Navbar */}
       <Navbar
         currentRole={currentRole}
-        setCurrentRole={(role) => {
-          setCurrentRole(role);
-          setShowAIStudioView(false);
-        }}
+        setCurrentRole={setCurrentRole}
         currentLanguage={currentLanguage}
         setCurrentLanguage={setCurrentLanguage}
         onOpenExportModal={() => setIsExportModalOpen(true)}
@@ -250,14 +165,14 @@ export default function Home() {
           <TraineePortal
             currentLanguage={currentLanguage}
             trainee={trainees[activeTraineeIndex] || trainees[0]}
-            onUpdateMilestone={handleUpdateMilestone}
+            onUpdateMilestone={recordMilestone}
             onOpenConsentModal={() => setIsConsentModalOpen(true)}
             onOpenSimulators={() => setCurrentRole('simulators')}
           />
         )}
 
         {currentRole === 'simulators' && (
-          <SimulatorsContainer onOutcomeSubmitted={handleBotOutcomeSubmitted} />
+          <SimulatorsContainer onOutcomeSubmitted={ingestBotOutcome} />
         )}
 
         {currentRole === 'ai_studio' && (
@@ -286,19 +201,7 @@ export default function Home() {
         <ConsentModal
           trainee={trainees[activeTraineeIndex] || trainees[0]}
           onClose={() => setIsConsentModalOpen(false)}
-          onSave={(consent) => {
-            setTrainees(prev => prev.map((t, idx) => {
-              if (idx === (activeTraineeIndex || 0)) {
-                return { ...t, activeConsent: consent };
-              }
-              return t;
-            }));
-            publish({
-              tone: 'info',
-              title: 'DPDP Consent Vault Updated',
-              message: `Token ${consent.consentToken} refreshed • Updated ${consent.lastConsentDate}`,
-            });
-          }}
+          onSave={updateConsent}
         />
       )}
 
@@ -308,7 +211,7 @@ export default function Home() {
           isOpen={isLiveMobileQRModalOpen}
           onClose={() => setIsLiveMobileQRModalOpen(false)}
           onSimulateLiveUpdate={(salary, status) => {
-            handleBotOutcomeSubmitted({
+            ingestBotOutcome({
               salary,
               status,
               channel: 'whatsapp_qr_demo'

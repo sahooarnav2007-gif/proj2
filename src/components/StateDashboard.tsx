@@ -39,6 +39,21 @@ import {
   Line
 } from 'recharts';
 
+interface AnalyticsApiResponse {
+  success: boolean;
+  statewideSummary: {
+    totalTrainedLongitudinal: number;
+    totalCertified: number;
+    certificationRate: string;
+    avgRetention6M: string;
+    avgRetention12M: string;
+    avgRetention24M: string;
+    avgWageMultiplier: string;
+    avgTriangulationTrustScore: string;
+    privacyCompliance: string;
+  };
+}
+
 interface StateDashboardProps {
   currentLanguage: Language;
   districts: DistrictMetric[];
@@ -69,33 +84,32 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   const [isStressTestOpen, setIsStressTestOpen] = useState<boolean>(false);
   const [apiStatus, setApiStatus] = useState<'loading' | 'online' | 'offline'>('loading');
   const [apiSummary, setApiSummary] = useState<{ certificationRate?: string; source?: string } | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
 
-  // Live aggregation from /api/analytics (falls back to local props if unreachable)
+  // Live aggregation from /api/analytics (falls back to local props if unreachable).
+  // Re-polls every 30s so the dashboard behaves like a live ops cockpit.
   useEffect(() => {
     let cancelled = false;
-    apiFetch<{
-      success: boolean;
-      statewideSummary: {
-        totalTrainedLongitudinal: number;
-        totalCertified: number;
-        certificationRate: string;
-        avgRetention6M: string;
-        avgRetention12M: string;
-        avgRetention24M: string;
-        avgWageMultiplier: string;
-        avgTriangulationTrustScore: string;
-        privacyCompliance: string;
-      };
-    }>('/api/analytics')
-      .then((res) => {
+
+    const load = async () => {
+      try {
+        const res = await apiFetch<AnalyticsApiResponse>('/api/analytics');
         if (cancelled) return;
         setApiStatus('online');
         setApiSummary({ certificationRate: res.statewideSummary.certificationRate });
-      })
-      .catch(() => {
+        setLastSyncedAt(new Date());
+      } catch {
         if (!cancelled) setApiStatus('offline');
-      });
-    return () => { cancelled = true; };
+      }
+    };
+
+    const interval = setInterval(load, 30000);
+    load();
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
   // Aggregated statewide numbers
@@ -184,7 +198,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                   apiStatus === 'loading' ? 'bg-slate-400 animate-pulse' :
                   apiStatus === 'online' ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'
                 }`}></span>
-                {apiStatus === 'online' ? '/api/analytics LIVE' : apiStatus === 'offline' ? '/api/analytics OFFLINE' : 'Linking /api/analytics'}
+                {apiStatus === 'online' ? `API LIVE${lastSyncedAt ? ` • ${lastSyncedAt.toLocaleTimeString()}` : ''}` : apiStatus === 'offline' ? '/api/analytics OFFLINE' : 'Linking /api/analytics'}
               </span>
               {onOpenExportReport && (
                 <button

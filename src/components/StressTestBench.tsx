@@ -29,6 +29,9 @@ interface TelemetryPacket {
   timestamp: string;
 }
 
+const DISTRICTS = ['Pune', 'Gadchiroli', 'Nandurbar', 'Nagpur', 'Solapur', 'Nashik', 'Chhatrapati Sambhajinagar', 'Thane', 'Kolhapur', 'Amravati'];
+const SECTORS = ['Automotive / EV', 'Renewable Energy / Solar', 'Medicinal Processing', 'Precision Manufacturing', 'IT & Cloud Ops'];
+
 export const StressTestBench: React.FC = () => {
   const { publish } = useLiveEvents();
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -41,9 +44,6 @@ export const StressTestBench: React.FC = () => {
   const [packets, setPackets] = useState<TelemetryPacket[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const completedSentRef = useRef(false);
-
-  const districts = ['Pune', 'Gadchiroli', 'Nandurbar', 'Nagpur', 'Solapur', 'Nashik', 'Chhatrapati Sambhajinagar', 'Thane', 'Kolhapur', 'Amravati'];
-  const sectors = ['Automotive / EV', 'Renewable Energy / Solar', 'Medicinal Processing', 'Precision Manufacturing', 'IT & Cloud Ops'];
 
   useEffect(() => {
     if (isRunning) {
@@ -74,8 +74,8 @@ export const StressTestBench: React.FC = () => {
         // Generate 3 live packets for the feed
         const newPackets: TelemetryPacket[] = Array.from({ length: 2 }).map(() => ({
           id: `PKT-${Math.floor(100000 + Math.random() * 900000)}`,
-          district: districts[Math.floor(Math.random() * districts.length)],
-          sector: sectors[Math.floor(Math.random() * sectors.length)],
+          district: DISTRICTS[Math.floor(Math.random() * DISTRICTS.length)],
+          sector: SECTORS[Math.floor(Math.random() * SECTORS.length)],
           status: Math.random() > 0.15 ? 'Triangulated (EPFO+Voice)' : 'At-Risk Flagged (ML Model)',
           triangulationScore: Math.floor(92 + Math.random() * 8),
           latencyMs: Math.floor(14 + Math.random() * 22),
@@ -92,7 +92,7 @@ export const StressTestBench: React.FC = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, targetVolume]);
+  }, [isRunning, targetVolume, publish]);
 
   const handleStart = () => {
     if (processedCount >= targetVolume) {

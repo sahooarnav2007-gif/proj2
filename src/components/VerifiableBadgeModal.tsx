@@ -16,6 +16,7 @@ import {
   Building2,
   Sparkles
 } from 'lucide-react';
+import { useQrDataUrl } from '@/lib/qr';
 
 interface VerifiableBadgeModalProps {
   trainee: Trainee;
@@ -31,6 +32,14 @@ export const VerifiableBadgeModal: React.FC<VerifiableBadgeModalProps> = ({
   const [copied, setCopied] = useState<boolean>(false);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
   const [verifiedSuccess, setVerifiedSuccess] = useState<boolean>(false);
+
+  const qrTarget =
+    typeof window !== 'undefined'
+      ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? `${window.location.protocol}//192.168.1.7:${window.location.port || '3000'}/verify/${trainee.pseudonymizedToken || 'MSIS-8821'}`
+          : `${window.location.origin}/verify/${trainee.pseudonymizedToken || 'MSIS-8821'}`)
+      : 'https://github.com/sahooarnav2007-gif/proj2';
+  const { dataUrl: qrDataUrl } = useQrDataUrl(qrTarget, 280);
 
   if (!isOpen) return null;
 
@@ -108,17 +117,12 @@ export const VerifiableBadgeModal: React.FC<VerifiableBadgeModalProps> = ({
             {/* QR Visual */}
             <div className="sm:col-span-4 bg-slate-950 p-3.5 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
               <div className="w-28 h-28 bg-white p-1.5 rounded-xl flex items-center justify-center shadow-inner overflow-hidden">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(
-                    typeof window !== 'undefined'
-                      ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                          ? `${window.location.protocol}//192.168.1.7:${window.location.port || '3000'}/verify/${trainee.pseudonymizedToken || 'MSIS-8821'}`
-                          : `${window.location.origin}/verify/${trainee.pseudonymizedToken || 'MSIS-8821'}`)
-                      : 'https://github.com/sahooarnav2007-gif/proj2'
-                  )}&color=0f172a&bgcolor=ffffff&qzone=1`}
-                  alt="W3C Verifiable Credential QR"
-                  className="w-full h-full object-contain"
-                />
+                {qrDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={qrDataUrl} alt="W3C Verifiable Credential QR" className="w-full h-full object-contain" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-300 animate-pulse">Generating…</div>
+                )}
               </div>
               <span className="text-[10px] text-orange-400 font-mono mt-2 flex items-center gap-1 font-semibold">
                 <Lock className="w-3 h-3 text-orange-400" />

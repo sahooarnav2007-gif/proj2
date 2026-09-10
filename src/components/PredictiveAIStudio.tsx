@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { SKILL_GAP_NLP_TOPICS } from '@/data/mockData';
+import { SKILL_GAP_NLP_TOPICS, MAHARASHTRA_DISTRICTS } from '@/data/mockData';
 import { formatINR } from '@/lib/utils';
 import { calculateAttritionRisk } from '@/lib/attritionScore';
 import { apiFetch } from '@/lib/apiClient';
@@ -53,6 +53,7 @@ interface AttritionApiResponse {
 export const PredictiveAIStudio: React.FC = () => {
   // Attrition Simulation State
   const [sector, setSector] = useState<string>('Automotive & EV');
+  const [district, setDistrict] = useState<string>('Pune');
   const [salary, setSalary] = useState<number>(14000);
   const [commuteKm, setCommuteKm] = useState<number>(35);
   const [shiftType, setShiftType] = useState<'Day' | 'Night' | 'Rotational'>('Night');
@@ -88,7 +89,7 @@ export const PredictiveAIStudio: React.FC = () => {
       trainingRelevanceScore: relevance,
       isInformal,
       monthsInJob,
-      district: 'Pune',
+      district,
     }))
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -106,7 +107,7 @@ export const PredictiveAIStudio: React.FC = () => {
       trainingRelevanceScore: relevance,
       isInformal,
       monthsInJob,
-      district: 'Pune',
+      district,
     };
 
     // Instantly render the deterministic local classifier snapshot (progressive enhancement)
@@ -124,7 +125,7 @@ export const PredictiveAIStudio: React.FC = () => {
             trainingRelevanceScore: relevance,
             isInformal,
             monthsInJob,
-            district: 'Pune',
+            district,
           }),
         });
         if (cancelled) return;
@@ -145,7 +146,7 @@ export const PredictiveAIStudio: React.FC = () => {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [sector, salary, commuteKm, shiftType, relevance, isInformal, monthsInJob]);
+  }, [sector, salary, commuteKm, shiftType, relevance, isInformal, monthsInJob, district]);
 
   // Explainable AI (XAI) SHAP Feature Attribution Waterfall calculation
   const shapWaterfall = useMemo<SHAPFeatureWeight[]>(() => {
@@ -364,6 +365,19 @@ export const PredictiveAIStudio: React.FC = () => {
               <label htmlFor="isInformalCheck" className="text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
                 <strong>Informal / Unregistered Contract</strong> (Absence of active EPFO provident fund coverage increases exit risk)
               </label>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">District (Model Context)</label>
+              <select
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-medium"
+              >
+                {MAHARASHTRA_DISTRICTS.map(d => (
+                  <option key={d.district} value={d.district}>{d.district}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>

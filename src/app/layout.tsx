@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { LiveEventsProvider } from "@/lib/liveEvents";
 import { LiveEventTicker } from "@/components/LiveEventTicker";
+import { GlobalStateProvider } from "@/lib/globalState";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,8 +35,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <LiveEventsProvider>
-          {children}
-          <LiveEventTicker />
+          <GlobalStateProvider>
+            {children}
+            <LiveEventTicker />
+          </GlobalStateProvider>
         </LiveEventsProvider>
       </body>
     </html>

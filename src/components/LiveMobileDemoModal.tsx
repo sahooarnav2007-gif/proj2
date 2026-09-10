@@ -14,6 +14,7 @@ import {
   Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useQrDataUrl } from '@/lib/qr';
 
 interface LiveMobileDemoModalProps {
   isOpen: boolean;
@@ -28,6 +29,14 @@ export const LiveMobileDemoModal: React.FC<LiveMobileDemoModalProps> = ({
 }) => {
   const [mobileSalary, setMobileSalary] = useState<number>(36000);
   const [mobileStatus, setMobileStatus] = useState<string>('Senior EV BMS Technician');
+
+  const qrTarget =
+    typeof window !== 'undefined'
+      ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? `${window.location.protocol}//192.168.1.7:${window.location.port || '3000'}?role=simulators&demo=mobile`
+          : `${window.location.origin}?role=simulators&demo=mobile`)
+      : 'https://github.com/sahooarnav2007-gif/proj2';
+  const { dataUrl: qrDataUrl } = useQrDataUrl(qrTarget, 320);
   const [isSent, setIsSent] = useState<boolean>(false);
 
   if (!isOpen) return null;
@@ -88,17 +97,12 @@ export const LiveMobileDemoModal: React.FC<LiveMobileDemoModalProps> = ({
             {/* Real Scannable QR Code */}
             <div className="sm:col-span-5 bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
               <div className="w-40 h-40 bg-white p-2 rounded-2xl flex items-center justify-center shadow-lg border border-slate-200 overflow-hidden">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
-                    typeof window !== 'undefined'
-                      ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                          ? `${window.location.protocol}//192.168.1.7:${window.location.port || '3000'}?role=simulators&demo=mobile`
-                          : `${window.location.origin}?role=simulators&demo=mobile`)
-                      : 'https://github.com/sahooarnav2007-gif/proj2'
-                  )}&color=0f172a&bgcolor=ffffff&qzone=1`}
-                  alt="Scannable Live QR Code"
-                  className="w-full h-full object-contain"
-                />
+                {qrDataUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={qrDataUrl} alt="Scannable Live QR Code" className="w-full h-full object-contain" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-300 animate-pulse">Generating…</div>
+                )}
               </div>
               <span className="text-[11px] text-orange-400 font-mono font-bold mt-2.5 flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin-slow" />

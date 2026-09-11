@@ -1,14 +1,41 @@
 import { NextResponse } from 'next/server';
 import { EMPLOYER_VERIFICATION_QUEUE } from '@/data/mockData';
 
+export const runtime = 'nodejs';
+
+const LOOKUP_TYPES = ['uan', 'udyam'];
+
 // POST /api/verify - Triangulate or process employer verification actions
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { action, itemId, identifier, type } = body;
 
+    if (!['lookup', 'confirm', 'dispute'].includes(action)) {
+      return NextResponse.json(
+        { error: `Invalid action: "${action}". Allowed: lookup, confirm, dispute.` },
+        { status: 400 }
+      );
+    }
+
+    if (action === 'confirm' || action === 'dispute') {
+      if (!itemId) {
+        return NextResponse.json(
+          { error: `Action "${action}" requires an itemId.` },
+          { status: 400 }
+        );
+      }
+    }
+
     // Sub-Action 1: Registry Lookup Query (EPFO / Udyam / NAPS)
     if (action === 'lookup') {
+      if (type && !LOOKUP_TYPES.includes(type)) {
+        return NextResponse.json(
+          { error: `Invalid lookup type: "${type}". Allowed: ${LOOKUP_TYPES.join(', ')} (default: NAPS).` },
+          { status: 400 }
+        );
+      }
+
       if (type === 'uan') {
         return NextResponse.json({
           success: true,
@@ -57,20 +84,16 @@ export async function POST(request: Request) {
     }
 
     // Sub-Action 2: Employer Confirm / Dispute Action
-    if (action === 'confirm' || action === 'dispute') {
-      const match = EMPLOYER_VERIFICATION_QUEUE.find(item => item.id === itemId);
-      return NextResponse.json({
-        success: true,
-        itemId,
-        newStatus: action === 'confirm' ? 'Verified' : 'Disputed',
-        triangulationMatchScore: action === 'confirm' ? 100 : 40,
-        remarks: action === 'confirm' 
-          ? 'Verified by HR Manager via Skill Sync Employer Gateway.' 
-          : 'Discrepancy reported: Candidate is not on active payroll.'
-      });
-    }
-
-    return NextResponse.json({ error: 'Invalid action parameter' }, { status: 400 });
+    const match = EMPLOYER_VERIFICATION_QUEUE.find(item => item.id === itemId);
+    return NextResponse.json({
+      success: true,
+      itemId,
+      newStatus: action === 'confirm' ? 'Verified' : 'Disputed',
+      triangulationMatchScore: action === 'confirm' ? 100 : 40,
+      remarks: action === 'confirm'
+        ? 'Verified by HR Manager via Skill Sync Employer Gateway.'
+        : 'Discrepancy reported: Candidate is not on active payroll.'
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }

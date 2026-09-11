@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Trainee } from '@/types';
+import { Trainee, Language } from '@/types';
+import { translations } from '@/lib/utils';
 import { X, ShieldCheck, Lock, Save, Loader2 } from 'lucide-react';
 import { submitConsent } from '@/lib/api';
 
@@ -9,9 +10,11 @@ interface ConsentModalProps {
   trainee: Trainee;
   onClose: () => void;
   onSave: (consent: Trainee['activeConsent']) => void;
+  currentLanguage?: Language;
 }
 
-export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, onSave }) => {
+export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, onSave, currentLanguage = 'en' }) => {
+  const t = translations[currentLanguage] ?? translations.en;
   const [consent, setConsent] = useState({
     placementTracking: trainee.activeConsent.placementTracking,
     wageResearchAnonymized: trainee.activeConsent.wageResearchAnonymized,
@@ -57,7 +60,12 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+    <div
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="consent-modal-title"
+    >
       <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -66,15 +74,20 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
               <Lock className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">
-                DPDP Act 2023 Consent Vault
+              <h3 id="consent-modal-title" className="font-extrabold text-lg text-slate-900 dark:text-white">
+                {t.consentVault}
               </h3>
               <p className="text-xs text-slate-400">
-                Manage data sharing permissions for {trainee.fullName}
+                {t.consentManageFor} {trainee.fullName}
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            type="button"
+            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -83,52 +96,56 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
         <div className="space-y-3 text-xs">
           <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
             <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 block">Longitudinal Placement Follow-Up</span>
-              <span className="text-slate-500 text-[11px]">Automated 6M/12M check-ins via WhatsApp & IVR</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 block">{t.consentPlacementTitle}</span>
+              <span className="text-slate-500 text-[11px]">{t.consentPlacementSub}</span>
             </div>
             <input
               type="checkbox"
               checked={consent.placementTracking}
               onChange={() => toggle('placementTracking')}
+              aria-label={t.consentPlacementTitle}
               className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500"
             />
           </div>
 
           <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
             <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 block">Anonymized Wage Research</span>
-              <span className="text-slate-500 text-[11px]">Aggregated wage multiplier benchmarks for MSIS policy</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 block">{t.consentWageTitle}</span>
+              <span className="text-slate-500 text-[11px]">{t.consentWageSub}</span>
             </div>
             <input
               type="checkbox"
               checked={consent.wageResearchAnonymized}
               onChange={() => toggle('wageResearchAnonymized')}
+              aria-label={t.consentWageTitle}
               className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500"
             />
           </div>
 
           <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
             <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 block">Direct Employer Matching</span>
-              <span className="text-slate-500 text-[11px]">Allow top Maharashtra recruiters to view your skill badge</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 block">{t.consentMatchingTitle}</span>
+              <span className="text-slate-500 text-[11px]">{t.consentMatchingSub}</span>
             </div>
             <input
               type="checkbox"
               checked={consent.employerDirectMatching}
               onChange={() => toggle('employerDirectMatching')}
+              aria-label={t.consentMatchingTitle}
               className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500"
             />
           </div>
 
           <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
             <div>
-              <span className="font-bold text-slate-800 dark:text-slate-200 block">EPFO & DigiLocker Triangulation</span>
-              <span className="text-slate-500 text-[11px]">Cryptographic verification without manual salary slips</span>
+              <span className="font-bold text-slate-800 dark:text-slate-200 block">{t.consentTriangulationTitle}</span>
+              <span className="text-slate-500 text-[11px]">{t.consentTriangulationSub}</span>
             </div>
             <input
               type="checkbox"
               checked={consent.epfoAadhaarTriangulation}
               onChange={() => toggle('epfoAadhaarTriangulation')}
+              aria-label={t.consentTriangulationTitle}
               className="w-4 h-4 text-orange-600 rounded focus:ring-orange-500"
             />
           </div>
@@ -139,14 +156,14 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
           <div className="flex items-center justify-between mb-1">
             <span className="font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4" />
-              <span>Consent Token</span>
+              <span>{t.consentToken}</span>
             </span>
             <span className="font-mono text-[11px] text-emerald-700 dark:text-emerald-300 font-bold">
               {trainee.activeConsent.consentToken}
             </span>
           </div>
           <p className="text-emerald-800/80 dark:text-emerald-300/80 text-[11px]">
-            Tamper-proof ledger entry. Changes are cryptographically logged per DPDP Act 2023 Section 8.
+            {t.consentLedgerNote}
           </p>
         </div>
 
@@ -163,7 +180,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
             disabled={isSaving}
             className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 font-semibold text-xs disabled:opacity-50"
           >
-            Cancel
+            {t.cancel}
           </button>
           <button
             type="button"
@@ -172,7 +189,7 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
             className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2 disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            <span>{saved ? 'Consent Updated!' : isSaving ? 'Tokenizing Ledger Entry...' : 'Save Consent Preferences'}</span>
+            <span>{saved ? t.consentSaved : isSaving ? t.consentSaving : t.consentSave}</span>
           </button>
         </div>
       </div>

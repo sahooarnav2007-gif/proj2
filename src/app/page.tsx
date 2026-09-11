@@ -234,6 +234,7 @@ export default function Home() {
           trainee={trainees[activeTraineeIndex] || trainees[0]}
           onClose={() => setIsConsentModalOpen(false)}
           onSave={updateConsent}
+          currentLanguage={currentLanguage}
         />
       )}
 

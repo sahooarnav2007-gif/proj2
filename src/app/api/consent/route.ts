@@ -1,20 +1,39 @@
 import { NextResponse } from 'next/server';
 
+export const runtime = 'nodejs';
+
 // POST /api/consent - DPDP Act 2023 Consent Ledger & Tokenization API
+// Validates the action and permission flags before minting the token/hash.
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { 
-      traineeId, 
-      placementTracking = true, 
-      wageResearchAnonymized = true, 
-      employerDirectMatching = true, 
+    const {
+      traineeId,
+      placementTracking = true,
+      wageResearchAnonymized = true,
+      employerDirectMatching = true,
       epfoAadhaarTriangulation = true,
-      action = 'grant' 
+      action = 'grant'
     } = body;
 
     if (!traineeId) {
       return NextResponse.json({ error: 'Missing traineeId' }, { status: 400 });
+    }
+
+    if (!['grant', 'revoke'].includes(action)) {
+      return NextResponse.json(
+        { error: `Invalid action: "${action}". Allowed: grant, revoke.` },
+        { status: 400 }
+      );
+    }
+
+    const permissions = { placementTracking, wageResearchAnonymized, employerDirectMatching, epfoAadhaarTriangulation };
+    const booleans = Object.values(permissions);
+    if (!booleans.every(p => typeof p === 'boolean')) {
+      return NextResponse.json(
+        { error: 'All permission flags must be boolean (true/false).' },
+        { status: 400 }
+      );
     }
 
     const consentToken = `DPDP-TOKEN-${Date.now().toString(36).toUpperCase()}`;
@@ -27,12 +46,7 @@ export async function POST(request: Request) {
       consentToken,
       ledgerHash,
       timestamp: new Date().toISOString(),
-      activePermissions: {
-        placementTracking,
-        wageResearchAnonymized,
-        employerDirectMatching,
-        epfoAadhaarTriangulation
-      },
+      activePermissions: permissions,
       dpdpComplianceStatus: action === 'revoke' ? 'REVOKED_AUDITED' : 'ACTIVE_CONSENT_GRANTED',
       auditNotice: 'This transaction is cryptographically logged in compliance with the Digital Personal Data Protection Act 2023.'
     });

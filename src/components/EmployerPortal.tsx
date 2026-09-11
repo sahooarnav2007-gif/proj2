@@ -4,16 +4,9 @@ import React, { useState } from 'react';
 import { Language, EmployerVerificationItem } from '@/types';
 import { translations, formatINR } from '@/lib/utils';
 import { useLiveEvents } from '@/lib/liveEvents';
-import { apiFetch } from '@/lib/apiClient';
+import { resolveVerification } from '@/lib/mockApi';
 
-interface VerifyApiResponse {
-  success: boolean;
-  itemId: string;
-  newStatus: 'Verified' | 'Disputed';
-  triangulationMatchScore: number;
-  remarks: string;
-}
-import { 
+import {
   Briefcase, 
   CheckCircle2, 
   XCircle, 
@@ -54,18 +47,15 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
   const handleVerify = async (id: string) => {
     setSubmittingId(id);
     try {
-      const res = await apiFetch<VerifyApiResponse>('/api/verify', {
-        method: 'POST',
-        body: JSON.stringify({ action: 'confirm', itemId: id }),
-      });
+      const res = await resolveVerification({ action: 'confirm', itemId: id });
 
       setQueue(prev => prev.map(item => {
         if (item.id === id) {
           return {
             ...item,
             verificationStatus: 'Verified',
-            triangulationMatchScore: res.triangulationMatchScore,
-            hrRemarks: res.remarks,
+            triangulationMatchScore: res.triangulationMatchScore ?? 0,
+            hrRemarks: res.remarks ?? '',
           };
         }
         return item;
@@ -74,14 +64,14 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
       const item = queue.find(q => q.id === id);
       publish({
         tone: 'success',
-        title: 'Employment Record Verified via /api/verify',
+        title: 'Employment Record Verified',
         message: `${item?.traineeName ?? 'Trainee'} • ${item?.trainingProviderName ?? 'TP'} • ${res.triangulationMatchScore}% triangulation match`
       });
     } catch (err) {
       publish({
         tone: 'warning',
-        title: 'Verification API Error',
-        message: err instanceof Error ? err.message : 'Unable to reach /api/verify'
+        title: 'Verification Error',
+        message: err instanceof Error ? err.message : 'Unable to resolve verification'
       });
     } finally {
       setSubmittingId(null);
@@ -91,18 +81,15 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
   const handleDispute = async (id: string) => {
     setSubmittingId(id);
     try {
-      const res = await apiFetch<VerifyApiResponse>('/api/verify', {
-        method: 'POST',
-        body: JSON.stringify({ action: 'dispute', itemId: id }),
-      });
+      const res = await resolveVerification({ action: 'dispute', itemId: id });
 
       setQueue(prev => prev.map(item => {
         if (item.id === id) {
           return {
             ...item,
             verificationStatus: 'Disputed',
-            triangulationMatchScore: res.triangulationMatchScore,
-            hrRemarks: res.remarks,
+            triangulationMatchScore: res.triangulationMatchScore ?? 0,
+            hrRemarks: res.remarks ?? '',
           };
         }
         return item;
@@ -110,14 +97,14 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
 
       publish({
         tone: 'warning',
-        title: 'Discrepancy Reported via /api/verify',
+        title: 'Discrepancy Reported',
         message: res.remarks
       });
     } catch (err) {
       publish({
         tone: 'warning',
-        title: 'Verification API Error',
-        message: err instanceof Error ? err.message : 'Unable to reach /api/verify'
+        title: 'Verification Error',
+        message: err instanceof Error ? err.message : 'Unable to resolve verification'
       });
     } finally {
       setSubmittingId(null);

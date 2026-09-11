@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { LiveEventsProvider } from "@/lib/liveEvents";
@@ -16,12 +16,15 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#ea580c",
+};
+
 export const metadata: Metadata = {
   title: "Skill Sync — Longitudinal Skilling Outcomes & Impact Tracker | SIH 2026",
   description: "Government of Maharashtra (MSIS / Dept of Skills) Longitudinal Skilling Tracker, Multi-channel Follow-ups, and Triangulation Platform.",
   applicationName: "Skill Sync",
   manifest: "/manifest.webmanifest",
-  themeColor: "#ea580c",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

@@ -124,12 +124,12 @@ PILLAR 4: DPDP ACT 2023 PRIVACY & TOKENIZATION VAULT
 • Styling & Design System: Tailwind CSS with GIGW 3.0 government accessibility standards 
   (text resizer A-/A/A+, trilingual switcher: ENG, मराठी, हिंदी)
 • Data Visualizations: Recharts (SVG area curves and multi-tier bar charts)
-• Backend Architecture: Modular REST API routes in TypeScript/Node.js:
-    - /api/telemetry (Ingests WhatsApp/IVR survey responses)
-    - /api/verify (Handles employer verification & EPFO/Udyam cryptographic queries)
-    - /api/ai/predict-attrition (Machine learning inference endpoint)
-    - /api/analytics (Aggregates statewide 36-district metrics)
-    - /api/consent (DPDP Act 2023 tokenization ledger)
+• Backend Architecture: The working demo is 100% client-side — NO server, database, or network
+  calls. A simulated service layer (src/lib/mockApi.ts) reproduces the production API contracts
+  in the browser: telemetry ingestion (WhatsApp/IVR + SkillCoins), employer verification
+  (confirm/dispute, EPFO/Udyam/NAPS lookup), ML attrition inference, 36-district analytics
+  aggregation, and the DPDP consent ledger. In production these ship as TypeScript/Node.js
+  REST routes (/api/telemetry, /api/verify, /api/ai/predict-attrition, /api/analytics, /api/consent).
 • Dataset: Authentic 36 Maharashtra districts, 8 industrial sectors, MIDC clusters 
   (Chakan, Waluj, MIHAN, Butibori, Satpur), and longitudinal cohorts.
 

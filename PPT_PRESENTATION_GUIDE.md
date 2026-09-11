@@ -94,7 +94,7 @@
 
 ### Slide 7: Tech Stack & DPDP 2023 Compliance
 - **Frontend**: Next.js 14, React 18, Tailwind CSS, Recharts.
-- **Backend**: TypeScript / Node.js REST API routes (`/api/telemetry`, `/api/verify`, `/api/ai/predict-attrition`).
+- **Backend**: Zero-backend demo — runs 100% in the browser (simulated service layer reproduces the REST contracts); production deploy: TypeScript/Node.js REST routes (`/api/telemetry`, `/api/verify`, `/api/ai/predict-attrition`).
 - **Security**: DPDP Act 2023 Tokenization Vault (Masked Aadhaar, cryptographic hashes).
 
 ### Slide 8: Expected Impact & State ROI

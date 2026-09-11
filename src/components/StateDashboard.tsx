@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Language, DistrictMetric, TrainingProviderMetric, SectorOutcome } from '@/types';
 import { translations, formatINR, formatPercent } from '@/lib/utils';
-import { apiFetch } from '@/lib/apiClient';
+import { fetchAnalytics } from '@/lib/mockApi';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { MaharashtraGeoMap } from '@/components/MaharashtraGeoMap';
 import { StressTestBench } from '@/components/StressTestBench';
@@ -93,7 +93,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   const [apiSummary, setApiSummary] = useState<{ certificationRate?: string; source?: AnalyticsApiResponse['filtersApplied'] } | null>(null);
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
 
-  // Live aggregation from /api/analytics (falls back to local props if unreachable).
+  // Live aggregation from the simulated analytics service (falls back to local props if busy).
   // Re-polls every 30s AND whenever the region/tier drilldown filters change, so the
   // header KPIs recompute for the current scope like a real ops cockpit.
   useEffect(() => {
@@ -101,11 +101,10 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
 
     const load = async () => {
       try {
-        const params = new URLSearchParams();
-        if (selectedRegion !== 'All') params.set('region', selectedRegion);
-        if (selectedTier !== 'All') params.set('tier', selectedTier);
-        const query = params.toString();
-        const res = await apiFetch<AnalyticsApiResponse>(`/api/analytics${query ? `?${query}` : ''}`);
+        const res = await fetchAnalytics({
+          region: selectedRegion !== 'All' ? selectedRegion : undefined,
+          tier: selectedTier !== 'All' ? selectedTier : undefined,
+        });
         if (cancelled) return;
         setApiStatus('online');
         setApiSummary({ certificationRate: res.statewideSummary.certificationRate, source: res.filtersApplied });
@@ -210,7 +209,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                   apiStatus === 'loading' ? 'bg-slate-400 animate-pulse' :
                   apiStatus === 'online' ? 'bg-emerald-400 animate-ping' : 'bg-amber-400'
                 }`}></span>
-                {apiStatus === 'online' ? `API LIVE${lastSyncedAt ? ` • ${lastSyncedAt.toLocaleTimeString()}` : ''}` : apiStatus === 'offline' ? '/api/analytics OFFLINE' : 'Linking /api/analytics'}
+                {apiStatus === 'online' ? `API LIVE${lastSyncedAt ? ` • ${lastSyncedAt.toLocaleTimeString()}` : ''}` : apiStatus === 'offline' ? 'SIM OFFLINE' : 'Linking analytics'}
               </span>
               {apiStatus === 'online' && (selectedRegion !== 'All' || selectedTier !== 'All') && (
                 <span className="ml-1.5 px-1.5 py-0.5 bg-orange-950/60 border border-orange-700/40 rounded-md text-[10px] text-orange-300 font-mono">

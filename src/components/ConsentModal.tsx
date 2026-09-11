@@ -3,17 +3,7 @@
 import React, { useState } from 'react';
 import { Trainee } from '@/types';
 import { X, ShieldCheck, Lock, Save, Loader2 } from 'lucide-react';
-import { apiFetch } from '@/lib/apiClient';
-
-interface ConsentApiResponse {
-  success: boolean;
-  action: string;
-  traineeId: string;
-  consentToken: string;
-  ledgerHash: string;
-  timestamp: string;
-  dpdpComplianceStatus: string;
-}
+import { submitConsent } from '@/lib/mockApi';
 
 interface ConsentModalProps {
   trainee: Trainee;
@@ -41,16 +31,13 @@ export const ConsentModal: React.FC<ConsentModalProps> = ({ trainee, onClose, on
     setIsSaving(true);
     setSaveError(null);
     try {
-      const res = await apiFetch<ConsentApiResponse>('/api/consent', {
-        method: 'POST',
-        body: JSON.stringify({
-          traineeId: trainee.id,
-          placementTracking: consent.placementTracking,
-          wageResearchAnonymized: consent.wageResearchAnonymized,
-          employerDirectMatching: consent.employerDirectMatching,
-          epfoAadhaarTriangulation: consent.epfoAadhaarTriangulation,
-          action: 'grant',
-        }),
+      const res = await submitConsent({
+        traineeId: trainee.id,
+        placementTracking: consent.placementTracking,
+        wageResearchAnonymized: consent.wageResearchAnonymized,
+        employerDirectMatching: consent.employerDirectMatching,
+        epfoAadhaarTriangulation: consent.epfoAadhaarTriangulation,
+        action: 'grant',
       });
 
       onSave({

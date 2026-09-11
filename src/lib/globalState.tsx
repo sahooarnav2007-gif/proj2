@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { Role, Language, Trainee, LongitudinalRecord } from '@/types';
 import { MOCK_TRAINEES } from '@/data/mockData';
 import { formatINR } from '@/lib/utils';
-import { apiFetch } from '@/lib/apiClient';
+import { ingestTelemetry } from '@/lib/mockApi';
 import { useLiveEvents } from '@/lib/liveEvents';
 
 const STORAGE_KEY = 'skill-sync-state-v1';
@@ -155,23 +155,14 @@ export const GlobalStateProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const ingestBotOutcome = useCallback(
     async (data: { salary: number; status: string; channel: string }) => {
       try {
-        const res = await apiFetch<{
-          success: boolean;
-          record: { month: number; timestamp: string; status: string; verificationStatus: LongitudinalRecord['verificationStatus'] };
-          skillCoinsAwarded: number;
-          trustScore: number;
-          dpdpAuditToken: string;
-        }>('/api/telemetry', {
-          method: 'POST',
-          body: JSON.stringify({
-            traineeId: trainees[0]?.id,
-            month: 24,
-            status: data.status,
-            monthlySalary: data.salary,
-            designation: 'Verified Specialist',
-            companyName: 'Triangulated Employer',
-            channelUsed: data.channel,
-          }),
+        const res = await ingestTelemetry({
+          traineeId: trainees[0]?.id,
+          month: 24,
+          status: data.status,
+          monthlySalary: data.salary,
+          designation: 'Verified Specialist',
+          companyName: 'Triangulated Employer',
+          channelUsed: data.channel,
         });
 
         setTrainees(prev => prev.map((t, idx) => {
@@ -202,14 +193,14 @@ export const GlobalStateProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
         publish({
           tone: 'success',
-          title: 'Follow-Up Outcome Synced via /api/telemetry',
+          title: 'Follow-Up Outcome Synced via Telemetry',
           message: `Channel: ${data.channel} • ${formatINR(data.salary)}/mo • Audit ${res.dpdpAuditToken}`,
         });
       } catch (err) {
         publish({
           tone: 'warning',
           title: 'Telemetry Ingestion Failed',
-          message: err instanceof Error ? err.message : 'Unable to reach /api/telemetry',
+          message: err instanceof Error ? err.message : 'Telemetry simulation failed',
         });
       }
     },

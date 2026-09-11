@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { SKILL_GAP_NLP_TOPICS, MAHARASHTRA_DISTRICTS } from '@/data/mockData';
 import { formatINR } from '@/lib/utils';
 import { calculateAttritionRisk } from '@/lib/attritionScore';
-import { apiFetch } from '@/lib/apiClient';
+import { predictAttrition } from '@/lib/mockApi';
 import { AttritionPredictionInput } from '@/types';
 import { 
   BookOpen, 
@@ -37,19 +37,6 @@ interface EnrichedPrediction {
   bg: string;
 }
 
-interface AttritionApiResponse {
-  success: boolean;
-  modelVersion: string;
-  rocAuc: number;
-  inferenceTimestamp: string;
-  prediction: {
-    riskScorePercentage: number;
-    riskLevel: RiskLevel;
-    daysHorizon: number;
-    recommendedCounselorIntervention: string;
-  };
-}
-
 export const PredictiveAIStudio: React.FC = () => {
   // Attrition Simulation State
   const [sector, setSector] = useState<string>('Automotive & EV');
@@ -61,7 +48,7 @@ export const PredictiveAIStudio: React.FC = () => {
   const [isInformal, setIsInformal] = useState<boolean>(true);
   const [monthsInJob, setMonthsInJob] = useState<number>(2);
 
-  // Predictive algorithm calculation — local classifier snapshot + live /api/ai/predict-attrition inference
+  // Predictive algorithm calculation — local classifier snapshot + simulated model inference
   function enrichPrediction(result: { score: number; level: RiskLevel; intervention: string }): EnrichedPrediction {
     let color = 'text-emerald-600 dark:text-emerald-400';
     let bg = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800';
@@ -115,19 +102,7 @@ export const PredictiveAIStudio: React.FC = () => {
 
     const timer = setTimeout(async () => {
       try {
-        const res = await apiFetch<AttritionApiResponse>('/api/ai/predict-attrition', {
-          method: 'POST',
-          body: JSON.stringify({
-            sector,
-            monthlySalary: salary,
-            commuteKm,
-            shiftType,
-            trainingRelevanceScore: relevance,
-            isInformal,
-            monthsInJob,
-            district,
-          }),
-        });
+        const res = await predictAttrition(input);
         if (cancelled) return;
         setPrediction(enrichPrediction({
           score: res.prediction.riskScorePercentage,
@@ -136,7 +111,7 @@ export const PredictiveAIStudio: React.FC = () => {
         }));
         setModelMeta({ modelVersion: res.modelVersion, rocAuc: res.rocAuc });
       } catch {
-        // API unavailable — keep the local classifier snapshot already rendered
+        // Inference unavailable — keep the local classifier snapshot already rendered
       } finally {
         if (!cancelled) setIsLoading(false);
       }

@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { SKILL_GAP_NLP_TOPICS, MAHARASHTRA_DISTRICTS } from '@/data/mockData';
-import { formatINR } from '@/lib/utils';
+import { translations, formatINR } from '@/lib/utils';
 import { calculateAttritionRisk } from '@/lib/attritionScore';
 import { predictAttrition } from '@/lib/api';
-import { AttritionPredictionInput } from '@/types';
+import { AttritionPredictionInput, Language } from '@/types';
+import { RiskGauge } from '@/components/RiskGauge';
 import { 
   BookOpen, 
   Sliders, 
@@ -37,7 +38,13 @@ interface EnrichedPrediction {
   bg: string;
 }
 
-export const PredictiveAIStudio: React.FC = () => {
+interface PredictiveAIStudioProps {
+  currentLanguage: Language;
+}
+
+export const PredictiveAIStudio: React.FC<PredictiveAIStudioProps> = ({ currentLanguage }) => {
+  const t = translations[currentLanguage];
+
   // Attrition Simulation State
   const [sector, setSector] = useState<string>('Automotive & EV');
   const [district, setDistrict] = useState<string>('Pune');
@@ -192,7 +199,7 @@ export const PredictiveAIStudio: React.FC = () => {
   }, [salary, commuteKm, isInformal, shiftType, relevance, monthsInJob]);
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
+    <div className="space-y-8 animate-fade-in pb-12" data-tour="ai">
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-900 via-orange-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="flex items-center gap-2 mb-2">
@@ -232,7 +239,7 @@ export const PredictiveAIStudio: React.FC = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Industry Sector</label>
+              <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">{t.aiSector}</label>
               <select
                 value={sector}
                 onChange={(e) => setSector(e.target.value)}
@@ -249,7 +256,7 @@ export const PredictiveAIStudio: React.FC = () => {
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">Monthly Net Wage</label>
+                <label className="font-bold text-slate-700 dark:text-slate-300">{t.aiWage}</label>
                 <span className="font-mono font-bold text-orange-600 dark:text-orange-400">{formatINR(salary)}</span>
               </div>
               <input
@@ -265,7 +272,7 @@ export const PredictiveAIStudio: React.FC = () => {
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">Daily One-Way Commute</label>
+                <label className="font-bold text-slate-700 dark:text-slate-300">{t.aiCommute}</label>
                 <span className="font-mono font-bold text-orange-600 dark:text-orange-400">{commuteKm} km</span>
               </div>
               <input
@@ -280,7 +287,7 @@ export const PredictiveAIStudio: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">Shift Schedule</label>
+              <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">{t.aiShift}</label>
               <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
                 {(['Day', 'Night', 'Rotational'] as const).map(type => (
                   <button
@@ -299,8 +306,8 @@ export const PredictiveAIStudio: React.FC = () => {
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">Training Relevance Score</label>
-                <span className="font-bold text-amber-500">{relevance} / 5 Stars</span>
+                <label className="font-bold text-slate-700 dark:text-slate-300">{t.aiRelevance}</label>
+                <span className="font-bold text-amber-500">{relevance} / 5 {t.aiStars}</span>
               </div>
               <input
                 type="range"
@@ -315,7 +322,7 @@ export const PredictiveAIStudio: React.FC = () => {
 
             <div>
               <div className="flex justify-between items-center mb-1">
-                <label className="font-bold text-slate-700 dark:text-slate-300">Months in Current Job</label>
+                <label className="font-bold text-slate-700 dark:text-slate-300">{t.aiJobMonths}</label>
                 <span className="font-bold text-blue-500">{monthsInJob} Months</span>
               </div>
               <input
@@ -338,12 +345,12 @@ export const PredictiveAIStudio: React.FC = () => {
                 className="w-4 h-4 text-orange-600 rounded cursor-pointer"
               />
               <label htmlFor="isInformalCheck" className="text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
-                <strong>Informal / Unregistered Contract</strong> (Absence of active EPFO provident fund coverage increases exit risk)
+                <strong>{t.aiInformal}</strong> ({t.aiInformalHint})
               </label>
             </div>
 
             <div className="sm:col-span-2">
-              <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">District (Model Context)</label>
+              <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">{t.aiDistrict}</label>
               <select
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
@@ -363,12 +370,12 @@ export const PredictiveAIStudio: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                  Predicted Job Exit Probability
+                  {t.aiExitProbability}
                 </span>
                 {isLoading && (
                   <span className="flex items-center gap-1 text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase">
                     <Loader2 className="w-3 h-3 animate-spin" />
-                    AI Inferencing
+                    {t.aiInferencing}
                   </span>
                 )}
               </div>
@@ -377,33 +384,20 @@ export const PredictiveAIStudio: React.FC = () => {
                 prediction.level === 'High' ? 'bg-amber-500 text-white' :
                 prediction.level === 'Moderate' ? 'bg-blue-600 text-white' : 'bg-emerald-600 text-white'
               }`}>
-                {prediction.level} Risk
+                {prediction.level} {t.aiRisk}
               </span>
             </div>
 
-            <div className="flex items-baseline gap-2">
-              <span className={`text-5xl font-black ${prediction.color}`}>
-                {prediction.score}%
-              </span>
-              <span className="text-xs text-slate-500 font-medium">chance of exit within 90 days</span>
-            </div>
+            <RiskGauge score={prediction.score} level={prediction.level} />
 
-            {/* Progress bar */}
-            <div className="w-full bg-slate-200 dark:bg-slate-700 h-3 rounded-full overflow-hidden">
-              <div
-                className={`h-full transition-all duration-500 ${
-                  prediction.score >= 75 ? 'bg-rose-500' :
-                  prediction.score >= 50 ? 'bg-amber-500' :
-                  prediction.score >= 30 ? 'bg-blue-500' : 'bg-emerald-500'
-                }`}
-                style={{ width: `${prediction.score}%` }}
-              ></div>
+            <div className="text-center text-xs text-slate-500 dark:text-slate-400 font-medium -mt-1">
+              {t.aiExitWithin90}
             </div>
 
             <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs space-y-2">
               <span className="font-bold text-slate-900 dark:text-white block flex items-center gap-1.5">
                 <Lightbulb className="w-4 h-4 text-amber-500" />
-                <span>Automated Counselor Intervention Directive:</span>
+                <span>{t.aiIntervention}</span>
               </span>
               <p className="text-slate-700 dark:text-slate-300 leading-relaxed font-medium bg-white/90 dark:bg-slate-900/90 p-3 rounded-xl border border-slate-200/80 dark:border-slate-700">
                 {prediction.intervention}
@@ -414,7 +408,7 @@ export const PredictiveAIStudio: React.FC = () => {
           <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs text-slate-500 space-y-1">
             <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Model Architecture: {modelMeta?.modelVersion ?? 'Random Forest Classifier (v2.6.4, local snapshot)'}</span>
+              <span>{t.aiModelArch} {modelMeta?.modelVersion ?? 'Random Forest Classifier (v2.6.4, local snapshot)'}</span>
             </span>
             <p>Trained on 140k+ longitudinal skilling records across 36 Maharashtra districts (ROC-AUC: {modelMeta?.rocAuc ?? 0.912}).</p>
           </div>

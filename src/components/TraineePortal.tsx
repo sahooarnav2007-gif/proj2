@@ -65,7 +65,7 @@ export const TraineePortal: React.FC<TraineePortalProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
+    <div className="space-y-8 animate-fade-in pb-12" data-tour="trainee">
       {/* Trainee Profile & Gamified SkillCoins Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-6">

@@ -48,3 +48,43 @@ body {
     text-wrap: balance;
   }
 }
+
+:root {
+  --chart-grid: #e2e8f0;
+  --chart-axis: #64748b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --chart-grid: #334155;
+  }
+}
+
+/* Guided demo tour focal highlight */
+.tour-highlight {
+  outline: 3px solid #ea580c;
+  outline-offset: 4px;
+  border-radius: 12px;
+  transition: outline 0.2s ease;
+}
+
+/* Print-to-PDF: cabin-ready, chrome-free dataset */
+@media print {
+  @page {
+    margin: 1.2cm;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  body {
+    background: #ffffff;
+    color: #0f172a;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

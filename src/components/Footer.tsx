@@ -23,7 +23,7 @@ export const Footer: React.FC<FooterProps> = ({ currentLanguage }) => {
   const t = translations[currentLanguage];
 
   return (
-    <footer className="mt-16 bg-slate-900 border-t border-slate-800 text-slate-400 text-xs">
+    <footer className="mt-16 bg-slate-900 border-t border-slate-800 text-slate-400 text-xs print:hidden">
       {/* Upper Footer: Government Info & Quick Portals */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

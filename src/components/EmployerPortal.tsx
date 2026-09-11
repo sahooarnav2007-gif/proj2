@@ -136,7 +136,7 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
+    <div className="space-y-8 animate-fade-in pb-12" data-tour="employer">
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-4">
@@ -163,7 +163,7 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
               className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-lg shadow-teal-600/20 transition"
             >
               <UploadCloud className="w-4 h-4" />
-              <span>Bulk HRMS / CSV Verification</span>
+              <span>{t.bulkHrmsVerify}</span>
             </button>
           </div>
         </div>
@@ -177,26 +177,26 @@ export const EmployerPortal: React.FC<EmployerPortalProps> = ({
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
           <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-            <span className="text-slate-300 text-xs block">Pending HR Verifications</span>
+            <span className="text-slate-300 text-xs block">{t.pendingHrVerifications}</span>
             <span className="text-2xl font-black text-amber-400 mt-1 block">
               {queue.filter(q => q.verificationStatus === 'Pending').length} Trainees
             </span>
-            <span className="text-[11px] text-slate-300">Requires 1-click confirmation</span>
+            <span className="text-[11px] text-slate-300">{t.requires1Click}</span>
           </div>
           <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-            <span className="text-slate-300 text-xs block">Verified This Quarter</span>
+            <span className="text-slate-300 text-xs block">{t.verifiedThisQuarter}</span>
             <span className="text-2xl font-black text-emerald-400 mt-1 block">
               {queue.filter(q => q.verificationStatus === 'Verified').length} Trainees
             </span>
             <span className="text-[11px] text-emerald-300">Triangulation score 98%+</span>
           </div>
           <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-            <span className="text-slate-300 text-xs block">Average Retention at 12M</span>
+            <span className="text-slate-300 text-xs block">{t.retention12M}</span>
             <span className="text-2xl font-black text-white mt-1 block">84.2%</span>
             <span className="text-[11px] text-slate-300">In formal manufacturing & IT</span>
           </div>
           <div className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10">
-            <span className="text-slate-300 text-xs block">Discrepancy Resolution</span>
+            <span className="text-slate-300 text-xs block">{t.discrepancyResolution}</span>
             <span className="text-2xl font-black text-cyan-400 mt-1 block">&lt; 48 Hours</span>
             <span className="text-[11px] text-cyan-300">Direct TP notification</span>
           </div>

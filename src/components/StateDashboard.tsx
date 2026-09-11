@@ -23,7 +23,8 @@ import {
   Table as TableIcon,
   Zap,
   X,
-  FileText
+  FileText,
+  Printer
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -175,7 +176,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
   }));
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
+    <div className="space-y-8 animate-fade-in pb-12" data-tour="state">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="absolute right-0 top-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -197,7 +198,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                 Continuous 3-to-36 month post-training tracking triangulating Trainee self-reports, EPFO provident fund activity, and Udyam business signals across all 36 districts.
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 print:hidden">
               <span className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
                 apiStatus === 'online'
                   ? 'bg-emerald-500/15 text-emerald-300 border-emerald-400/40'
@@ -241,6 +242,13 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
               </button>
             </div>
           </div>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-700 shadow-md transition hover:scale-105 active:scale-95 print:hidden"
+          >
+            <Printer className="w-4 h-4 text-orange-400" />
+            <span>{t.printReport}</span>
+          </button>
 
           {/* Statewide 6 Key Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-8">
@@ -360,7 +368,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
                     <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
                 <XAxis dataKey="milestone" stroke="#64748b" fontSize={12} />
                 <YAxis unit="%" domain={[40, 100]} stroke="#64748b" fontSize={12} />
                 <Tooltip 
@@ -395,7 +403,7 @@ export const StateDashboard: React.FC<StateDashboardProps> = ({
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={sectorWageData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
                 <XAxis dataKey="name" stroke="#64748b" fontSize={10} interval={0} angle={-20} textAnchor="end" />
                 <YAxis stroke="#64748b" fontSize={11} tickFormatter={(val) => `₹${val/1000}k`} />
                 <Tooltip 

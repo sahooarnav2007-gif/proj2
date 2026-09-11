@@ -19,7 +19,7 @@ export const SimulatorsContainer: React.FC<{ onOutcomeSubmitted?: (data: any) =>
   const [activeTab, setActiveTab] = useState<'whatsapp' | 'ivr' | 'ussd' | 'stress' | 'epfo'>('whatsapp');
 
   return (
-    <div className="space-y-6 animate-fade-in pb-12">
+    <div className="space-y-6 animate-fade-in pb-12" data-tour="sims">
       {/* Selector Tabs Header */}
       <div className="bg-slate-900 text-white rounded-2xl p-6 border border-slate-800 shadow-xl flex flex-wrap items-center justify-between gap-4">
         <div>

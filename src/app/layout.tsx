@@ -4,6 +4,8 @@ import "./globals.css";
 import { LiveEventsProvider } from "@/lib/liveEvents";
 import { LiveEventTicker } from "@/components/LiveEventTicker";
 import { GlobalStateProvider } from "@/lib/globalState";
+import { Toasts } from "@/components/Toasts";
+import { DemoTour } from "@/components/DemoTour";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -57,6 +59,8 @@ export default function RootLayout({
               {children}
             </main>
             <LiveEventTicker />
+            <Toasts />
+            <DemoTour />
           </GlobalStateProvider>
         </LiveEventsProvider>
       </body>

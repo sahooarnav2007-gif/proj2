@@ -85,7 +85,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <header className="sticky top-0 z-40 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm print:hidden">
       
       {/* 1. Official National Tricolor Top Bar & Accessibility Header */}
       <div className="bg-slate-900 text-slate-300 text-[11px] border-b border-slate-800">

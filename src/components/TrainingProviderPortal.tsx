@@ -71,7 +71,7 @@ export const TrainingProviderPortal: React.FC<TrainingProviderPortalProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-12">
+    <div className="space-y-8 animate-fade-in pb-12" data-tour="tp">
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-4">

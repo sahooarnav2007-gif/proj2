@@ -112,7 +112,7 @@ export default function Home() {
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {/* Quick Role & Feature Banner */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs text-xs">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs text-xs print:hidden">
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-700 dark:text-slate-300">{t.activeView}:</span>
             <span className="bg-orange-100 dark:bg-orange-950/70 text-orange-700 dark:text-orange-300 font-bold px-2.5 py-1 rounded-lg">
@@ -174,7 +174,7 @@ export default function Home() {
         )}
 
         {currentRole === 'state_admin' && showAIStudioView && (
-          <PredictiveAIStudio />
+          <PredictiveAIStudio currentLanguage={currentLanguage} />
         )}
 
         {currentRole === 'training_provider' && (
@@ -208,7 +208,7 @@ export default function Home() {
         )}
 
         {currentRole === 'ai_studio' && (
-          <PredictiveAIStudio />
+          <PredictiveAIStudio currentLanguage={currentLanguage} />
         )}
       </main>
 

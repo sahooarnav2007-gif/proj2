@@ -169,13 +169,13 @@ Government skilling portals today capture enrollment, classroom attendance, asse
   - Web Audio API Dual-Tone Multi-Frequency (DTMF) oscillator.
   - Multi-tier speech synthesis with phonetic vernacular fallback.
   - Random Forest Attrition Predictor with SHAP feature force attribution.
-- **Zero-Backend Architecture (100% Client-Side)**: The entire system runs in the browser with **no server, database, or network calls**. A lightweight in-browser simulation layer (`src/lib/mockApi.ts`) reproduces the exact wire contracts of a production backend:
-  - **Simulated Telemetry Ingestion** — WhatsApp/IVR/USSD/SMS/PWA outcome ingestion with SkillCoins rewards (`src/lib/mockApi.ts` → `ingestTelemetry`).
-  - **Simulated Employer Verification** — 1-click confirm/dispute plus EPFO/Udyam/NAPS registry lookup (`resolveVerification`).
-  - **Simulated ML Inference** — Random Forest attrition scoring with SHAP-style factor ranking, `modelVersion`, `rocAuc` (`predictAttrition`).
-  - **Simulated Analytics Aggregation** — Dynamic 36-district telemetry with `region`/`tier`/`district`/`sector` drilldown filters (`fetchAnalytics`).
-  - **Simulated DPDP Consent Ledger** — tokenization & cryptographic audit ledger (`submitConsent`).
-  - State persists to `localStorage` (`skill-sync-state-v1`); W3C credential hashes are computed with real SHA-256 in the browser (`src/lib/crypto.ts`). This means the demo runs fully offline — open any static host (or `npm run dev`) and it *just works*.
+- **Dual-Mode Data Layer (Live Backend + Offline Fallback)**: The system ships with a **real backend** (Next.js route handlers in `src/app/api/*`, TypeScript/Node.js) AND an in-browser simulation (`src/lib/mockApi.ts`). `src/lib/api.ts` is a thin gateway that calls the live APIs first and, if the server is unreachable (static host, offline LAN, airplane mode), transparently falls back to the simulation — **so the same UI works with or without a backend**:
+  - **Telemetry Ingestion** — WhatsApp/IVR/USSD/SMS/PWA outcome ingestion with SkillCoins rewards.
+  - **Employer Verification** — 1-click confirm/dispute + EPFO/Udyam/NAPS registry lookup.
+  - **ML Inference** — Random Forest attrition scoring with SHAP-style factor ranking, `modelVersion`, `rocAuc`.
+  - **Analytics Aggregation** — Dynamic 36-district telemetry with `region`/`tier`/`district`/`sector` drilldown filters.
+  - **DPDP Consent Ledger** — tokenization & cryptographic audit ledger.
+  - State persists to `localStorage` (`skill-sync-state-v1`); W3C credential hashes are computed with real SHA-256 in the browser (`src/lib/crypto.ts`). The demo is fully functional on a static host, and runs live serverless APIs when deployed to Vercel.
 - **Privacy & Statutory Compliance**: DPDP Act 2023 Rule 7(b), Masked Aadhaar (`XXXXXXXX7821`), SHA-256 Merkle Tokenization, W3C Verifiable Credentials v1.1.
 
 ---
@@ -189,20 +189,21 @@ Government skilling portals today capture enrollment, classroom attendance, asse
 
 ---
 
-## 🔌 Simulated API Surface (Client-Side, Zero Backend)
+## 🔌 API Reference — Live Backend with Offline Fallback
 
-No route handlers or network requests exist. `src/lib/mockApi.ts` implements each contract in-browser (with realistic latency to keep loading states honest) and is unit-tested (`src/lib/__tests__/mockApi.test.ts`, Vitest):
+Real route handlers live in `src/app/api/*` (TypeScript/Node.js). The client (`src/lib/api.ts`) calls them first; if the server is unreachable it falls back to `src/lib/mockApi.ts`, which reproduces the same contracts in-browser (with realistic latency to keep loading states honest). Both layers are unit-tested (Vitest):
 
-| Simulated Service | Method | Shapes It Reproduces |
+| Endpoint | Method | Purpose |
 |---|---|---|
-| `fetchAnalytics` | `GET /api/analytics` | Statewide longitudinal aggregates. Optional filters: `district`, `region`, `tier`, `sector` — KPIs recompute over the filtered district set, `filtersApplied` echoes the scope |
-| `submitConsent` | `POST /api/consent` | DPDP Act 2023 consent recording → returns `consentToken` + `ledgerHash` |
-| `ingestTelemetry` | `POST /api/telemetry` | Multi-channel outcome ingestion (WhatsApp/IVR/USSD/SMS/PWA). Accepts `monthlySalary` or `salary`, `channelUsed` or `channel` |
-| `resolveVerification` | `POST /api/verify` | Employer triangulation — `action: lookup` (EPFO/Udyam/NAPS establishment check) or `confirm`/`dispute` |
-| `fetchVerificationQueue` | `GET /api/verify` | Pending employer verification queue |
-| `predictAttrition` | `POST /api/ai/predict-attrition` | Random Forest attrition inference → `riskScorePercentage`, `riskLevel`, factor ranking, `modelVersion`, `rocAuc` |
-| `verify/[id]` route | `GET` | Public phone-scannable W3C Verifiable Credential proof page (real SHA-256 credential fingerprint) |
-| PWA manifest | `GET /manifest.webmanifest` | Installable-PWA manifest (standalone, theme-color, Apple meta) |
+| `/api/analytics` | `GET` | Statewide longitudinal aggregates. Optional filters: `?district=`, `&region=`, `&tier=`, `&sector=` — KPIs recompute over the filtered district set |
+| `/api/consent` | `POST` | DPDP Act 2023 consent recording → returns `consentToken` + `ledgerHash` |
+| `/api/telemetry` | `POST` | Multi-channel outcome ingestion (WhatsApp/IVR/USSD/SMS/PWA). Accepts `monthlySalary` or `salary`, `channelUsed` or `channel` |
+| `/api/telemetry` | `GET` | Longitudinal telemetry lookup by `?traineeId=` (id or DPDP token) |
+| `/api/verify` | `POST` | Employer triangulation — `action: lookup` (EPFO/Udyam/NAPS establishment check) or `confirm`/`dispute` |
+| `/api/verify` | `GET` | Pending employer verification queue |
+| `/api/ai/predict-attrition` | `POST` | Random Forest attrition inference → `riskScorePercentage`, `riskLevel`, factor ranking, `modelVersion`, `rocAuc` |
+| `/verify/[id]` | `GET` | Public phone-scannable W3C Verifiable Credential proof page (real SHA-256 credential fingerprint) |
+| `/manifest.webmanifest` | `GET` | Installable-PWA manifest (standalone, theme-color, Apple meta) |
 
 ---
 

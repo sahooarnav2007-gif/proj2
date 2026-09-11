@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Trainee } from '@/types';
 import { X, ShieldCheck, Lock, Save, Loader2 } from 'lucide-react';
-import { submitConsent } from '@/lib/mockApi';
+import { submitConsent } from '@/lib/api';
 
 interface ConsentModalProps {
   trainee: Trainee;

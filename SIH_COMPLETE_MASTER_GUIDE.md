@@ -109,13 +109,12 @@ Ingests unstructured text from exit calls and employer remarks across Maharashtr
 - **Full-Stack Framework**: Next.js 14 (App Router), React 18, TypeScript
 - **Design & UI**: Tailwind CSS, Lucide Icons, GIGW 3.0 Accessibility (Text Resizer `A-`/`A`/`A+`, Trilingual: ENG, मराठी, हिंदी)
 - **Data Visualizations**: Recharts (Longitudinal Area charts, Multi-tier Bar charts)
-- **Zero-Backend Demo (100% Client-Side)**: The working demo ships with **no server, database, or network calls** — a simulated service layer (`src/lib/mockApi.ts`) reproduces the production API contracts in-browser:
-  - Simulated telemetry ingestion — WhatsApp/IVR outcomes + SkillCoins rewards
-  - Simulated employer verification — 1-click confirm/dispute, EPFO/Udyam/NAPS lookup
-  - Simulated ML inference — Random Forest attrition scoring (`SkillSync-RF-Classifier-v2.6`)
-  - Simulated analytics — statewide 36-district aggregation with region/tier/sector drilldown
-  - Simulated DPDP consent ledger — tokenization + audit hash
-  In production these ship as TypeScript/Node.js REST routes (`/api/telemetry`, `/api/verify`, `/api/ai/predict-attrition`, `/api/analytics`, `/api/consent`).
+- **Dual-Mode Backend (Live APIs + Offline Fallback)**: Real TypeScript/Node.js REST routes (`/api/telemetry`, `/api/verify`, `/api/ai/predict-attrition`, `/api/analytics`, `/api/consent`) power the app when deployed (e.g., Vercel). A simulated service layer (`src/lib/mockApi.ts`) plus gateway (`src/lib/api.ts`) keeps the **entire demo functional with zero backend** — static hosts, offline LAN, airplane mode — by transparently falling back when the server is unreachable:
+  - Telemetry ingestion — WhatsApp/IVR outcomes + SkillCoins rewards
+  - Employer verification — 1-click confirm/dispute, EPFO/Udyam/NAPS lookup
+  - ML inference — Random Forest attrition scoring (`SkillSync-RF-Classifier-v2.6`)
+  - Analytics — statewide 36-district aggregation with region/tier/sector drilldown
+  - DPDP consent ledger — tokenization + audit hash
 - **Data Privacy**: DPDP Act 2023 Rule 7(b) Compliant, Masked Aadhaar (`XXXXXXXX7821`), Tokenized identifiers.
 
 ---

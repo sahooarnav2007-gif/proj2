@@ -4,7 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { Role, Language, Trainee, LongitudinalRecord } from '@/types';
 import { MOCK_TRAINEES } from '@/data/mockData';
 import { formatINR } from '@/lib/utils';
-import { ingestTelemetry } from '@/lib/mockApi';
+import { ingestTelemetry } from '@/lib/api';
 import { useLiveEvents } from '@/lib/liveEvents';
 
 const STORAGE_KEY = 'skill-sync-state-v1';

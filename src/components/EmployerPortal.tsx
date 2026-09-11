@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Language, EmployerVerificationItem } from '@/types';
 import { translations, formatINR } from '@/lib/utils';
 import { useLiveEvents } from '@/lib/liveEvents';
-import { resolveVerification } from '@/lib/mockApi';
+import { resolveVerification } from '@/lib/api';
 
 import {
   Briefcase, 

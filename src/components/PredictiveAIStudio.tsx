@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { SKILL_GAP_NLP_TOPICS, MAHARASHTRA_DISTRICTS } from '@/data/mockData';
 import { formatINR } from '@/lib/utils';
 import { calculateAttritionRisk } from '@/lib/attritionScore';
-import { predictAttrition } from '@/lib/mockApi';
+import { predictAttrition } from '@/lib/api';
 import { AttritionPredictionInput } from '@/types';
 import { 
   BookOpen, 

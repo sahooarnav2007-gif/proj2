@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Language, DistrictMetric, TrainingProviderMetric, SectorOutcome } from '@/types';
 import { translations, formatINR, formatPercent } from '@/lib/utils';
-import { fetchAnalytics } from '@/lib/mockApi';
+import { fetchAnalytics } from '@/lib/api';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
 import { MaharashtraGeoMap } from '@/components/MaharashtraGeoMap';
 import { StressTestBench } from '@/components/StressTestBench';
